@@ -124,7 +124,7 @@
 
 ### Single-File Deliverable — `DIST`
 
-- [x] **DIST-01**: One file — `agenda-presenter.html`, opens by double-clicking
+- [x] **DIST-01**: One file — `meeting-manager.html`, opens by double-clicking
 - [x] **DIST-02**: Inline all CSS and JS; no external CDN at runtime
 - [x] **DIST-03**: Inline `marked` v18 UMD as the only library
 - [x] **DIST-04**: System font stack — no Google Fonts CDN; works fully offline
@@ -173,96 +173,96 @@ These will not be built for this product, with reasoning.
 
 Every v1 requirement is mapped to exactly one phase. Coverage: 78 / 78 (100%).
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| PARSE-01 | Phase 1 | Complete |
-| PARSE-02 | Phase 1 | Complete |
-| PARSE-03 | Phase 1 | Complete |
-| PARSE-04 | Phase 1 | Complete |
-| PARSE-05 | Phase 1 | Complete |
-| PARSE-06 | Phase 1 | Complete |
-| PARSE-07 | Phase 1 | Complete |
-| PARSE-08 | Phase 1 | Complete |
-| PARSE-09 | Phase 1 | Complete |
-| PARSE-10 | Phase 1 | Complete |
-| LOAD-01 | Phase 3 | Complete |
-| LOAD-02 | Phase 2 | Complete |
-| LOAD-03 | Phase 1 | Complete |
-| LOAD-04 | Phase 2 | Complete |
-| LOAD-05 | Phase 2 | Complete |
-| SLIDE-01 | Phase 1 | Complete |
-| SLIDE-02 | Phase 1 | Complete |
-| SLIDE-03 | Phase 1 | Complete |
-| SLIDE-04 | Phase 1 | Complete |
-| SLIDE-05 | Phase 1 | Complete |
-| SIDE-01 | Phase 1 | Complete |
-| SIDE-02 | Phase 1 | Complete |
-| SIDE-03 | Phase 1 | Complete |
-| SIDE-04 | Phase 1 | Complete |
-| SIDE-05 | Phase 1 | Complete |
-| SIDE-06 | Phase 1 | Complete |
-| TIMER-01 | Phase 1 | Complete |
-| TIMER-02 | Phase 1 | Complete |
-| TIMER-03 | Phase 1 | Complete |
-| TIMER-04 | Phase 1 | Complete |
-| TIMER-05 | Phase 1 | Complete |
-| TIMER-06 | Phase 1 | Complete |
-| TIMER-07 | Phase 3 | Complete |
-| TIMER-08 | Phase 1 | Complete |
-| TIMER-09 | Phase 1 | Complete |
-| TIMER-10 | Phase 1 | Complete |
-| NAV-01 | Phase 2 | Complete |
-| NAV-02 | Phase 2 | Complete |
-| NAV-03 | Phase 2 | Complete |
-| NAV-04 | Phase 2 | Complete |
-| NAV-05 | Phase 2 | Complete |
-| NAV-06 | Phase 2 | Complete |
-| OVER-01 | Phase 1 | Complete |
-| OVER-02 | Phase 1 | Complete |
-| OVER-03 | Phase 1 | Complete |
-| OVER-04 | Phase 1 | Complete |
-| THEME-01 | Phase 3 | Complete |
-| THEME-02 | Phase 3 | Complete |
-| THEME-03 | Phase 3 | Complete |
-| THEME-04 | Phase 3 | Complete |
-| PERSIST-01 | Phase 2 | Complete |
-| PERSIST-02 | Phase 2 | Complete |
-| PERSIST-03 | Phase 2 | Complete |
-| PERSIST-04 | Phase 2 | Complete |
-| PERSIST-05 | Phase 2 | Complete |
-| PERSIST-06 | Phase 2 | Complete |
-| GUARD-01 | Phase 2 | Complete |
-| GUARD-02 | Phase 2 | Complete |
-| WAKE-01 | Phase 3 | Complete |
-| WAKE-02 | Phase 3 | Complete |
-| WAKE-03 | Phase 3 | Complete |
-| SOUND-01 | Phase 3 | Complete |
-| SOUND-02 | Phase 3 | Complete |
-| SOUND-03 | Phase 3 | Complete |
-| ERR-01 | Phase 3 | Complete |
-| ERR-02 | Phase 3 | Complete |
-| ERR-03 | Phase 3 | Complete |
-| BRAND-01 | Phase 4 | Complete |
-| BRAND-02 | Phase 4 | Complete |
-| BRAND-03 | Phase 4 | Complete |
-| BRAND-04 | Phase 4 | Complete |
-| BRAND-05 | Phase 4 | Complete |
-| DIST-01 | Phase 1 | Complete |
-| DIST-02 | Phase 1 | Complete |
-| DIST-03 | Phase 1 | Complete |
-| DIST-04 | Phase 1 | Complete |
-| DIST-05 | Phase 1 | Complete |
-| DIST-06 | Phase 1 | Complete |
+| Requirement | Phase   | Status   |
+| ----------- | ------- | -------- |
+| PARSE-01    | Phase 1 | Complete |
+| PARSE-02    | Phase 1 | Complete |
+| PARSE-03    | Phase 1 | Complete |
+| PARSE-04    | Phase 1 | Complete |
+| PARSE-05    | Phase 1 | Complete |
+| PARSE-06    | Phase 1 | Complete |
+| PARSE-07    | Phase 1 | Complete |
+| PARSE-08    | Phase 1 | Complete |
+| PARSE-09    | Phase 1 | Complete |
+| PARSE-10    | Phase 1 | Complete |
+| LOAD-01     | Phase 3 | Complete |
+| LOAD-02     | Phase 2 | Complete |
+| LOAD-03     | Phase 1 | Complete |
+| LOAD-04     | Phase 2 | Complete |
+| LOAD-05     | Phase 2 | Complete |
+| SLIDE-01    | Phase 1 | Complete |
+| SLIDE-02    | Phase 1 | Complete |
+| SLIDE-03    | Phase 1 | Complete |
+| SLIDE-04    | Phase 1 | Complete |
+| SLIDE-05    | Phase 1 | Complete |
+| SIDE-01     | Phase 1 | Complete |
+| SIDE-02     | Phase 1 | Complete |
+| SIDE-03     | Phase 1 | Complete |
+| SIDE-04     | Phase 1 | Complete |
+| SIDE-05     | Phase 1 | Complete |
+| SIDE-06     | Phase 1 | Complete |
+| TIMER-01    | Phase 1 | Complete |
+| TIMER-02    | Phase 1 | Complete |
+| TIMER-03    | Phase 1 | Complete |
+| TIMER-04    | Phase 1 | Complete |
+| TIMER-05    | Phase 1 | Complete |
+| TIMER-06    | Phase 1 | Complete |
+| TIMER-07    | Phase 3 | Complete |
+| TIMER-08    | Phase 1 | Complete |
+| TIMER-09    | Phase 1 | Complete |
+| TIMER-10    | Phase 1 | Complete |
+| NAV-01      | Phase 2 | Complete |
+| NAV-02      | Phase 2 | Complete |
+| NAV-03      | Phase 2 | Complete |
+| NAV-04      | Phase 2 | Complete |
+| NAV-05      | Phase 2 | Complete |
+| NAV-06      | Phase 2 | Complete |
+| OVER-01     | Phase 1 | Complete |
+| OVER-02     | Phase 1 | Complete |
+| OVER-03     | Phase 1 | Complete |
+| OVER-04     | Phase 1 | Complete |
+| THEME-01    | Phase 3 | Complete |
+| THEME-02    | Phase 3 | Complete |
+| THEME-03    | Phase 3 | Complete |
+| THEME-04    | Phase 3 | Complete |
+| PERSIST-01  | Phase 2 | Complete |
+| PERSIST-02  | Phase 2 | Complete |
+| PERSIST-03  | Phase 2 | Complete |
+| PERSIST-04  | Phase 2 | Complete |
+| PERSIST-05  | Phase 2 | Complete |
+| PERSIST-06  | Phase 2 | Complete |
+| GUARD-01    | Phase 2 | Complete |
+| GUARD-02    | Phase 2 | Complete |
+| WAKE-01     | Phase 3 | Complete |
+| WAKE-02     | Phase 3 | Complete |
+| WAKE-03     | Phase 3 | Complete |
+| SOUND-01    | Phase 3 | Complete |
+| SOUND-02    | Phase 3 | Complete |
+| SOUND-03    | Phase 3 | Complete |
+| ERR-01      | Phase 3 | Complete |
+| ERR-02      | Phase 3 | Complete |
+| ERR-03      | Phase 3 | Complete |
+| BRAND-01    | Phase 4 | Complete |
+| BRAND-02    | Phase 4 | Complete |
+| BRAND-03    | Phase 4 | Complete |
+| BRAND-04    | Phase 4 | Complete |
+| BRAND-05    | Phase 4 | Complete |
+| DIST-01     | Phase 1 | Complete |
+| DIST-02     | Phase 1 | Complete |
+| DIST-03     | Phase 1 | Complete |
+| DIST-04     | Phase 1 | Complete |
+| DIST-05     | Phase 1 | Complete |
+| DIST-06     | Phase 1 | Complete |
 
 ### Phase-by-Phase Summary
 
-| Phase | Requirements | Count |
-|-------|--------------|-------|
-| **Phase 1: MVP Vertical Slice** | PARSE-01..10, LOAD-03, SLIDE-01..05, SIDE-01..06, TIMER-01..06, TIMER-08..10, OVER-01..04, DIST-01..06 | 41 |
-| **Phase 2: Persistence + Drag-Drop + Keyboard + Nav** | LOAD-02, LOAD-04, LOAD-05, NAV-01..06, PERSIST-01..06, GUARD-01..02 | 17 |
-| **Phase 3: Polish Layer** | LOAD-01, TIMER-07, THEME-01..04, WAKE-01..03, SOUND-01..03, ERR-01..03 | 15 |
-| **Phase 4: Discord-Readiness Visual Audit** | BRAND-01..05 | 5 |
-| **TOTAL** | | **78** |
+| Phase                                                 | Requirements                                                                                           | Count  |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------ |
+| **Phase 1: MVP Vertical Slice**                       | PARSE-01..10, LOAD-03, SLIDE-01..05, SIDE-01..06, TIMER-01..06, TIMER-08..10, OVER-01..04, DIST-01..06 | 41     |
+| **Phase 2: Persistence + Drag-Drop + Keyboard + Nav** | LOAD-02, LOAD-04, LOAD-05, NAV-01..06, PERSIST-01..06, GUARD-01..02                                    | 17     |
+| **Phase 3: Polish Layer**                             | LOAD-01, TIMER-07, THEME-01..04, WAKE-01..03, SOUND-01..03, ERR-01..03                                 | 15     |
+| **Phase 4: Discord-Readiness Visual Audit**           | BRAND-01..05                                                                                           | 5      |
+| **TOTAL**                                             |                                                                                                        | **78** |
 
 ---
 

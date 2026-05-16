@@ -8,7 +8,7 @@ implementation_commit: b8ea193
 
 ## Result
 
-Added a `Read time` button to the timer controls in `agenda-presenter.html`.
+Added a `Read time` button to the timer controls in `meeting-manager.html`.
 
 - Speaks the current timer remaining through browser-native `speechSynthesis`.
 - Formats positive time as natural language, e.g. `7 minutes 14 seconds left`.

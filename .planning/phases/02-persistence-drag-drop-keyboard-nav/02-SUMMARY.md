@@ -11,7 +11,7 @@ completed: 2026-05-16
 
 ## Result
 
-Implemented Phase 2 in `agenda-presenter.html`.
+Implemented Phase 2 in `meeting-manager.html`.
 
 - Added safe `localStorage` persistence with debounced saves, forced lifecycle saves, and in-memory fallback banner.
 - Restores saved agenda/cursor/timers with all timers paused and `startedAt` cleared.

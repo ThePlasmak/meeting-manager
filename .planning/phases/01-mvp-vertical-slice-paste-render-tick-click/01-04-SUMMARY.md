@@ -13,7 +13,7 @@ completed: 2026-05-16
 
 Verified the Phase 1 deliverable against the single-file/offline constraints.
 
-- Deliverable is one repo-root file: `agenda-presenter.html`.
+- Deliverable is one repo-root file: `meeting-manager.html`.
 - CSS, application JS, and `marked` UMD are all inline.
 - No build files or `package.json` were added.
 - No runtime CDN dependency, module script, local fetch, or external font dependency was found.
@@ -21,7 +21,7 @@ Verified the Phase 1 deliverable against the single-file/offline constraints.
 
 ## Static Checks
 
-- `git diff --check -- agenda-presenter.html`: pass.
+- `git diff --check -- meeting-manager.html`: pass.
 - No matches for `<script src`, `type="module"`, `fetch(`, `fonts.googleapis`, `<link`, or `setInterval`.
 - `package.json`: absent.
 - Intentional false positives:

@@ -26,7 +26,7 @@ PASS - Phase 1 MVP Vertical Slice is implemented and verified for the planned sc
 ## Evidence
 
 - Code commit: `eef3112 feat(01): build agenda presenter MVP`.
-- Browser smoke opened `agenda-presenter.html` from `file://` and passed with zero console/page errors.
+- Browser smoke opened `meeting-manager.html` from `file://` and passed with zero console/page errors.
 - `window.runParserSmokeTests()` returned `failed: 0`.
 - Overrun/reset smoke forced current elapsed time past allocation, confirmed `OVERTIME`, then reset to `02:00`.
 - Layout smoke passed at simulated 100%, 125%, and 150% desktop zoom viewports.

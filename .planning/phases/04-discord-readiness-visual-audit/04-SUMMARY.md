@@ -11,7 +11,7 @@ completed: 2026-05-16
 
 ## Result
 
-Completed the Phase 4 visual-readiness pass in `agenda-presenter.html`.
+Completed the Phase 4 visual-readiness pass in `meeting-manager.html`.
 
 - Added CSS font floor tokens for stage text, title text, body weight, and timer numerals.
 - Raised stage title and timer numerals for screenshare readability.

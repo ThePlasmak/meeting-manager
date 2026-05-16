@@ -21,7 +21,7 @@ PASS - All four v1 phases are implemented and verified against their planned loc
 
 ## Evidence
 
-- `agenda-presenter.html` is the only app deliverable.
+- `meeting-manager.html` is the only app deliverable.
 - Browser smoke opened the app from `file://`.
 - Parser fixtures passed with `failed: 0`.
 - Full workflow smoke covered load, sidebar, keyboard navigation, add-items, unsupported file error, persistence restore, theme/sound persistence, timer edit, overrun reset, and layout zoom simulations.

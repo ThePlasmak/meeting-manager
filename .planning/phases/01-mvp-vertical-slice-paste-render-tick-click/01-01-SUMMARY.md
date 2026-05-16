@@ -11,7 +11,7 @@ completed: 2026-05-16
 
 ## Result
 
-Implemented the Phase 1 parser foundation in `agenda-presenter.html`.
+Implemented the Phase 1 parser foundation in `meeting-manager.html`.
 
 - Inlined `marked` v18.0.3 UMD in the single HTML file.
 - Added `normalizeAgendaText(markdown)` with BOM stripping, CRLF normalization, smart quote normalization, and NFC normalization.

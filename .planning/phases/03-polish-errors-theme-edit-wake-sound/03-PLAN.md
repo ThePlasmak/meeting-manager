@@ -5,7 +5,7 @@ name: Polish theme errors edit wake sound
 type: implementation
 wave: 1
 files_modified:
-  - agenda-presenter.html
+  - meeting-manager.html
 autonomous: true
 requirements_addressed:
   - LOAD-01

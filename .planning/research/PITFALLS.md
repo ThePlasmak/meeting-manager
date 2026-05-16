@@ -1,6 +1,6 @@
 # Pitfalls Research
 
-**Domain:** Single-file local HTML meeting-timer / agenda-presenter (Chromium-based, `file://` origin, Discord screenshare)
+**Domain:** Single-file local HTML meeting-timer / meeting-manager (Chromium-based, `file://` origin, Discord screenshare)
 **Researched:** 2026-05-16
 **Confidence:** HIGH (timer / `file://` / Discord findings cross-verified against MDN, Chrome dev blog, Discord support); MEDIUM on Overwatch banner copyright; HIGH on parser edge cases (derived from the exact agenda fixtures in PROJECT.md).
 
@@ -63,9 +63,9 @@ This pattern is **immune to drift** (state is wall-clock-derived) and **immune t
 ### Pitfall 2: `file://` localStorage works in Chrome but silently isolates per-file path
 
 **What goes wrong:**
-Sarah saves a meeting agenda. She renames `agenda-presenter.html` to `agenda-presenter-v2.html` or moves it to a different folder. The new file loads with empty state — agenda is gone, theme preference is gone, current-slide is gone. She thinks her data was lost.
+Sarah saves a meeting agenda. She renames `meeting-manager.html` to `meeting-manager-v2.html` or moves it to a different folder. The new file loads with empty state — agenda is gone, theme preference is gone, current-slide is gone. She thinks her data was lost.
 
-Worse: she opens the file in Chrome on one day from `C:\Users\sarah\Downloads\agenda-presenter.html`, then a week later from `C:\Users\sarah\Documents\GitHub\meeting-manager\agenda-presenter.html`. These are two completely separate localStorage buckets in Chromium — moving the file silently abandons her state.
+Worse: she opens the file in Chrome on one day from `C:\Users\sarah\Downloads\meeting-manager.html`, then a week later from `C:\Users\sarah\Documents\GitHub\meeting-manager\meeting-manager.html`. These are two completely separate localStorage buckets in Chromium — moving the file silently abandons her state.
 
 **Why it happens:**
 - Chromium (Chrome/Edge) **does** allow localStorage on `file://` (unlike Firefox, which throws `SecurityError`). This makes "double-click to open" viable on the target browser.
@@ -90,7 +90,7 @@ Worse: she opens the file in Chrome on one day from `C:\Users\sarah\Downloads\ag
 ### Pitfall 3: `file://` opens in two tabs → state corruption via storage event echo
 
 **What goes wrong:**
-Sarah double-clicks `agenda-presenter.html` from the desktop, then accidentally double-clicks it again. Now two tabs are running. Both write to the same localStorage key. Sarah edits the timer in tab A; tab B doesn't see it. Sarah uses tab B for the meeting; on next reload, whichever tab was *last* to autosave wins and the other's edits are silently lost.
+Sarah double-clicks `meeting-manager.html` from the desktop, then accidentally double-clicks it again. Now two tabs are running. Both write to the same localStorage key. Sarah edits the timer in tab A; tab B doesn't see it. Sarah uses tab B for the meeting; on next reload, whichever tab was *last* to autosave wins and the other's edits are silently lost.
 
 **Why it happens:**
 - localStorage's `storage` event fires in *other* same-origin tabs but **not** in the originating tab. Two tabs writing to the same key produce a last-writer-wins race.
@@ -130,19 +130,19 @@ Sarah pastes an agenda where one line has `--` (two hyphens because she typed it
 
 **How to avoid — explicit rules table:**
 
-| Input variation | Rule |
-|---|---|
-| ` — `, ` – `, ` -- ` between title and duration | Normalize all three to one separator at parse time: `s.replace(/\s+(?:—|–|--)\s+/g, ' — ')` then split on ` — ` |
-| `7.5 min`, `5min`, `5 minutes`, `5m` | Single regex `/(\d+(?:\.\d+)?)\s*(?:min|minutes?|m)\b/i`; round to nearest second on display |
-| `max N min per person` with 1 person | Render as single sub-state (1a only), same UX as a normal item with custom duration |
-| `max N min per person` with 0 people / no names | Parse error → surface inline, don't crash; show that item with a "no attribution" badge and a single sub-state |
-| Missing duration | Default to a configurable fallback (e.g. 5 min) and **flag the slide visually** ("duration not specified — defaulted to 5:00") |
-| Missing deadline | Just hide the badge, don't show "undefined" |
-| Out-of-order numbering (`1.`, `3.`, `2.`) | Preserve markdown order, ignore the user's numbers; use parser-assigned sequence for the sidebar (1, 2, 3 by appearance) |
-| Names with apostrophes / hyphens / unicode | Treat attribution as opaque strings; never use names as object keys or regex inputs |
-| Decimal durations (`7.5 min`) | `Math.round(parseFloat(m) * 60_000)` ms |
-| Trailing whitespace, BOM, CRLF | Normalize on intake: `text.replace(/^﻿/, '').replace(/\r\n/g, '\n').trim()` |
-| Empty agenda | Show the paste-textarea view, never a blank slide deck |
+| Input variation                                 | Rule                                                                                                                           |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| ` — `, ` – `, ` -- ` between title and duration | Normalize all three to one separator at parse time: `s.replace(/\s+(?:—                                                        | –        | --)\s+/g, ' — ')` then split on ` — `       |
+| `7.5 min`, `5min`, `5 minutes`, `5m`            | Single regex `/(\d+(?:\.\d+)?)\s*(?:min                                                                                        | minutes? | m)\b/i`; round to nearest second on display |
+| `max N min per person` with 1 person            | Render as single sub-state (1a only), same UX as a normal item with custom duration                                            |
+| `max N min per person` with 0 people / no names | Parse error → surface inline, don't crash; show that item with a "no attribution" badge and a single sub-state                 |
+| Missing duration                                | Default to a configurable fallback (e.g. 5 min) and **flag the slide visually** ("duration not specified — defaulted to 5:00") |
+| Missing deadline                                | Just hide the badge, don't show "undefined"                                                                                    |
+| Out-of-order numbering (`1.`, `3.`, `2.`)       | Preserve markdown order, ignore the user's numbers; use parser-assigned sequence for the sidebar (1, 2, 3 by appearance)       |
+| Names with apostrophes / hyphens / unicode      | Treat attribution as opaque strings; never use names as object keys or regex inputs                                            |
+| Decimal durations (`7.5 min`)                   | `Math.round(parseFloat(m) * 60_000)` ms                                                                                        |
+| Trailing whitespace, BOM, CRLF                  | Normalize on intake: `text.replace(/^﻿/, '').replace(/\r\n/g, '\n').trim()`                                                    |
+| Empty agenda                                    | Show the paste-textarea view, never a blank slide deck                                                                         |
 
 **Build a fixture file** (`test-agendas.md`) with every variant. Parse it on every save during development. Don't ship without this.
 
@@ -205,14 +205,14 @@ Sarah, mid-meeting, mashes → to skip three items quickly. The first slide's ti
 1. **Make the timer state a pure data object per slide/sub-state.** Mutations are local to one object; advancing slide = save current object to map by id, load next from map. No shared mutable references.
 2. **Define overrun semantics explicitly in one place** (table form):
 
-   | Action | Behavior |
-   |---|---|
-   | Pause during overrun | Freeze at current negative value (e.g., −1:23). Resume continues counting more negative. |
-   | Reset during overrun | Restore to full allocated time, paused (don't auto-start — let the presenter decide). |
-   | ±1 min during overrun | Add/subtract from remaining, can cross back into positive territory. |
-   | Navigate away during overrun | Persist the negative remaining + paused state. On return, show the negative + OVERTIME banner. |
-   | Edit time during overrun | Treat input as "new remaining" (positive number); replaces accumulated such that `allocatedMs - accumulated = input`. |
-   | Edit while running | Pause for the duration of the edit dialog/input focus; resume on commit. |
+   | Action                       | Behavior                                                                                                              |
+   | ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+   | Pause during overrun         | Freeze at current negative value (e.g., −1:23). Resume continues counting more negative.                              |
+   | Reset during overrun         | Restore to full allocated time, paused (don't auto-start — let the presenter decide).                                 |
+   | ±1 min during overrun        | Add/subtract from remaining, can cross back into positive territory.                                                  |
+   | Navigate away during overrun | Persist the negative remaining + paused state. On return, show the negative + OVERTIME banner.                        |
+   | Edit time during overrun     | Treat input as "new remaining" (positive number); replaces accumulated such that `allocatedMs - accumulated = input`. |
+   | Edit while running           | Pause for the duration of the edit dialog/input focus; resume on commit.                                              |
 3. **Make `setSlide(id)` and `advanceToNext()` idempotent.** Two rapid → presses must produce the same state as one slow → press to the same target.
 4. **Edit-in-place input rules** (be explicit):
    - Format: `MM:SS` or `M:SS` or just `M` (interpreted as minutes).
@@ -329,19 +329,19 @@ The PROJECT.md is explicit on the *keybinding* semantics (→ = next person then
 **How to avoid:**
 1. **Write the navigation truth table** (write this down in the README or code comments):
 
-   | Current location | Action | Result |
-   |---|---|---|
-   | 1a (first of 3) | → | 1b |
-   | 1b (middle) | → | 1c |
-   | 1c (last of 3) | → | 2 (next item) |
-   | 1a | Shift+→ | 2 (skip remaining people) |
-   | 1c | Shift+→ | 2 |
-   | 1c | ← | 1b |
-   | 1a | ← | previous item's *last* sub-state (or item itself if no sub-states) |
-   | Click "1" in sidebar (while on 1b) | jump to 1a *and reset 1a's timer* |
-   | Click "1a" in sidebar (while on 1b) | jump to 1a *and reset 1a's timer* |
-   | Click "2" in sidebar (while on 1b) | jump to 2 (1's per-person states are preserved) |
-   | Item 1 with only 1 person | renders as single sub-state, no expand-arrow in sidebar |
+   | Current location                      | Action                                                            | Result                                                             |
+   | ------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+   | 1a (first of 3)                       | →                                                                 | 1b                                                                 |
+   | 1b (middle)                           | →                                                                 | 1c                                                                 |
+   | 1c (last of 3)                        | →                                                                 | 2 (next item)                                                      |
+   | 1a                                    | Shift+→                                                           | 2 (skip remaining people)                                          |
+   | 1c                                    | Shift+→                                                           | 2                                                                  |
+   | 1c                                    | ←                                                                 | 1b                                                                 |
+   | 1a                                    | ←                                                                 | previous item's *last* sub-state (or item itself if no sub-states) |
+   | Click "1" in sidebar (while on 1b)    | jump to 1a *and reset 1a's timer*                                 |
+   | Click "1a" in sidebar (while on 1b)   | jump to 1a *and reset 1a's timer*                                 |
+   | Click "2" in sidebar (while on 1b)    | jump to 2 (1's per-person states are preserved)                   |
+   | Item 1 with only 1 person             | renders as single sub-state, no expand-arrow in sidebar           |
    | Item 1 with 0 people / no attribution | renders as normal item (no sub-states), Shift+→ behaves same as → |
 
 2. **One slide layout, one timer bar — sub-state changes the timer and the attribution.** The item title and deadline don't reflow across sub-states; only the "Currently: Sarah" subtitle and the timer numerals change. This is what the PROJECT.md asks for ("one slide, advances Sarah → Teck Lee → Solomon").
@@ -427,16 +427,16 @@ The PROJECT.md is explicit on the *keybinding* semantics (→ = next person then
 
 ## Technical Debt Patterns
 
-| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|-------------------|----------------|-----------------|
-| Use `setInterval(tick, 1000)` for the timer instead of rAF + `performance.now()` derivation | 5 lines of code instead of 20 | Drift; throttling; every restore/pause/edit feature becomes a workaround on top of broken state | Never (the timer *is* the product) |
-| Skip the storage try/catch wrapper because "it works on my Chrome" | Saves 10 lines | App white-screens for any user on Firefox / Incognito / strict enterprise policy | Never |
-| Skip parser fixtures, hand-test with one example agenda | Faster v1 | Every "weird" agenda Sarah writes is a silent failure | Only if a fixture file is added in Phase 2 before any real meeting use |
-| Skip Pitfall 5 (typing-in-input guard) until a bug shows up | One less abstraction | Class-of-bugs that's confusing to repro; user loses trust | Never — it's 5 lines and prevents 10+ bugs |
-| Combine slide state + sub-state in a flat array | Simple data model | Pitfall 10's truth table becomes ad-hoc and inconsistent | Never (use hierarchy: items[] → subStates[]) |
-| Persist `startedAt: performance.now()` directly | Less math | Wrong on reload | Never |
-| Use literal Overwatch font/PNG asset | Pixel-perfect look | Trademark exposure if tool ever shipped publicly | Only for private screenshots, never in committed code |
-| Skip the duplicate-tab heartbeat | Less code | Silent state corruption when user double-double-clicks | Acceptable in v1 if the empty-state hint warns explicitly; revisit if Sarah hits it |
+| Shortcut                                                                                    | Immediate Benefit             | Long-term Cost                                                                                  | When Acceptable                                                                     |
+| ------------------------------------------------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Use `setInterval(tick, 1000)` for the timer instead of rAF + `performance.now()` derivation | 5 lines of code instead of 20 | Drift; throttling; every restore/pause/edit feature becomes a workaround on top of broken state | Never (the timer *is* the product)                                                  |
+| Skip the storage try/catch wrapper because "it works on my Chrome"                          | Saves 10 lines                | App white-screens for any user on Firefox / Incognito / strict enterprise policy                | Never                                                                               |
+| Skip parser fixtures, hand-test with one example agenda                                     | Faster v1                     | Every "weird" agenda Sarah writes is a silent failure                                           | Only if a fixture file is added in Phase 2 before any real meeting use              |
+| Skip Pitfall 5 (typing-in-input guard) until a bug shows up                                 | One less abstraction          | Class-of-bugs that's confusing to repro; user loses trust                                       | Never — it's 5 lines and prevents 10+ bugs                                          |
+| Combine slide state + sub-state in a flat array                                             | Simple data model             | Pitfall 10's truth table becomes ad-hoc and inconsistent                                        | Never (use hierarchy: items[] → subStates[])                                        |
+| Persist `startedAt: performance.now()` directly                                             | Less math                     | Wrong on reload                                                                                 | Never                                                                               |
+| Use literal Overwatch font/PNG asset                                                        | Pixel-perfect look            | Trademark exposure if tool ever shipped publicly                                                | Only for private screenshots, never in committed code                               |
+| Skip the duplicate-tab heartbeat                                                            | Less code                     | Silent state corruption when user double-double-clicks                                          | Acceptable in v1 if the empty-state hint warns explicitly; revisit if Sarah hits it |
 
 ---
 
@@ -462,16 +462,16 @@ The PROJECT.md is explicit on the *keybinding* semantics (→ = next person then
 
 ## Recovery Strategies
 
-| Pitfall | Recovery Cost | Recovery Steps |
-|---------|---------------|----------------|
-| Timer drift discovered in production | MEDIUM | Rewrite to rAF + `performance.now()` (Pitfall 1); state shape change forces a one-time storage migration |
-| Firefox user can't load the app | LOW | Add the try/catch wrapper + warning banner; ~30 min |
-| Parser breaks on a new agenda variant | LOW | Add to fixture file, fix regex/rule; same-day turnaround |
-| State corruption from duplicate tabs | MEDIUM | Add heartbeat detection; clear stale state on detected conflict |
-| Restore-from-crash showed wrong elapsed time | LOW (if architecture is right) | Already mitigated by "always restore paused" rule (Pitfall 7); just ensure the rule is enforced |
-| Discord viewers complain about blurry text | MEDIUM | Bump font weights/sizes via CSS variables; ~1 hour of style tuning + retest |
-| Sub-state navigation got tangled | MEDIUM | Refactor to the navigation truth table (Pitfall 10) |
-| Overwatch banner takedown / portfolio concern | LOW | Reskin the banner (different font, shifted hues); ~30 min |
+| Pitfall                                       | Recovery Cost                  | Recovery Steps                                                                                           |
+| --------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Timer drift discovered in production          | MEDIUM                         | Rewrite to rAF + `performance.now()` (Pitfall 1); state shape change forces a one-time storage migration |
+| Firefox user can't load the app               | LOW                            | Add the try/catch wrapper + warning banner; ~30 min                                                      |
+| Parser breaks on a new agenda variant         | LOW                            | Add to fixture file, fix regex/rule; same-day turnaround                                                 |
+| State corruption from duplicate tabs          | MEDIUM                         | Add heartbeat detection; clear stale state on detected conflict                                          |
+| Restore-from-crash showed wrong elapsed time  | LOW (if architecture is right) | Already mitigated by "always restore paused" rule (Pitfall 7); just ensure the rule is enforced          |
+| Discord viewers complain about blurry text    | MEDIUM                         | Bump font weights/sizes via CSS variables; ~1 hour of style tuning + retest                              |
+| Sub-state navigation got tangled              | MEDIUM                         | Refactor to the navigation truth table (Pitfall 10)                                                      |
+| Overwatch banner takedown / portfolio concern | LOW                            | Reskin the banner (different font, shifted hues); ~30 min                                                |
 
 ---
 
@@ -479,28 +479,28 @@ The PROJECT.md is explicit on the *keybinding* semantics (→ = next person then
 
 The roadmap should treat these as gates: a phase isn't done if its pitfalls aren't actively prevented.
 
-| Pitfall | Prevention Phase | Verification |
-|---------|------------------|--------------|
-| 1. Timer drift / throttling | Phase 1 (Timer engine) | 5-min alt-tab test passes; timer accuracy within 50ms over 10 minutes |
-| 4. Parser edge cases | Phase 1 (Parser) | Fixture file with all 10+ variants parses without error or NaN |
-| 18. Smart quotes / unicode | Phase 1 (Parser) | Notion-copied agenda renders correctly |
-| 19. Title slide numbering | Phase 1 (Data model) | Sidebar item 1 = agenda item 1, not title slide |
-| 2. `file://` storage / Firefox | Phase 2 (Persistence) | App loads in Firefox without white-screen |
-| 3. Duplicate tab corruption | Phase 2 (Persistence) | Heartbeat detection or documented warning |
-| 7. Reload restore | Phase 2 (Persistence) | Kill-tab-mid-meeting test produces paused-correct state |
-| 12. Drag-drop default | Phase 2 (Input) | Drop .md works; drop .png is graceful |
-| 16. Async autosave on close | Phase 2 (Persistence) | Force-flush on `pagehide` |
-| 5. Typing-in-input guard | Phase 3 (Keyboard) | Type "r" in textarea — no reset |
-| 6. Rapid clicks / overrun semantics | Phase 3 (Interactions) | Overrun semantics table behaviors all verified |
-| 10. Sub-state navigation | Phase 3 (Navigation) | Navigation truth table behaviors all verified |
-| 17. Sidebar scroll position | Phase 3 (Navigation) | Clicking item 20 keeps sidebar scroll context |
-| 20. Reset ambiguity | Phase 3 (Interactions) | Reset behavior documented and consistent |
-| 8. Discord screenshare quality | Phase 4 (Visual polish) | Real Discord screenshare test passes squint test |
-| 9. Overwatch banner copyright | Phase 4 (Visual polish) | Banner is recognizable-style but not exact copy |
-| 11. Dark mode flicker | Phase 4 (Visual polish) | Reload in dark mode — no flash |
-| 13. Browser zoom | Phase 4 (Visual polish) | Layout intact at 100%, 125%, 150% zoom |
-| 14. `performance.now()` cross-reload | Phase 2 (Persistence) | Already prevented by persisting durations not timestamps |
-| 15. Timer digit wiggle | Phase 4 (Visual polish) | `tabular-nums` applied |
+| Pitfall                              | Prevention Phase        | Verification                                                          |
+| ------------------------------------ | ----------------------- | --------------------------------------------------------------------- |
+| 1. Timer drift / throttling          | Phase 1 (Timer engine)  | 5-min alt-tab test passes; timer accuracy within 50ms over 10 minutes |
+| 4. Parser edge cases                 | Phase 1 (Parser)        | Fixture file with all 10+ variants parses without error or NaN        |
+| 18. Smart quotes / unicode           | Phase 1 (Parser)        | Notion-copied agenda renders correctly                                |
+| 19. Title slide numbering            | Phase 1 (Data model)    | Sidebar item 1 = agenda item 1, not title slide                       |
+| 2. `file://` storage / Firefox       | Phase 2 (Persistence)   | App loads in Firefox without white-screen                             |
+| 3. Duplicate tab corruption          | Phase 2 (Persistence)   | Heartbeat detection or documented warning                             |
+| 7. Reload restore                    | Phase 2 (Persistence)   | Kill-tab-mid-meeting test produces paused-correct state               |
+| 12. Drag-drop default                | Phase 2 (Input)         | Drop .md works; drop .png is graceful                                 |
+| 16. Async autosave on close          | Phase 2 (Persistence)   | Force-flush on `pagehide`                                             |
+| 5. Typing-in-input guard             | Phase 3 (Keyboard)      | Type "r" in textarea — no reset                                       |
+| 6. Rapid clicks / overrun semantics  | Phase 3 (Interactions)  | Overrun semantics table behaviors all verified                        |
+| 10. Sub-state navigation             | Phase 3 (Navigation)    | Navigation truth table behaviors all verified                         |
+| 17. Sidebar scroll position          | Phase 3 (Navigation)    | Clicking item 20 keeps sidebar scroll context                         |
+| 20. Reset ambiguity                  | Phase 3 (Interactions)  | Reset behavior documented and consistent                              |
+| 8. Discord screenshare quality       | Phase 4 (Visual polish) | Real Discord screenshare test passes squint test                      |
+| 9. Overwatch banner copyright        | Phase 4 (Visual polish) | Banner is recognizable-style but not exact copy                       |
+| 11. Dark mode flicker                | Phase 4 (Visual polish) | Reload in dark mode — no flash                                        |
+| 13. Browser zoom                     | Phase 4 (Visual polish) | Layout intact at 100%, 125%, 150% zoom                                |
+| 14. `performance.now()` cross-reload | Phase 2 (Persistence)   | Already prevented by persisting durations not timestamps              |
+| 15. Timer digit wiggle               | Phase 4 (Visual polish) | `tabular-nums` applied                                                |
 
 ---
 
@@ -545,5 +545,5 @@ The roadmap should treat these as gates: a phase isn't done if its pitfalls aren
 - PROJECT.md and README.md for this project (agenda format, "max per person" semantics, screenshare context, single-file constraint).
 
 ---
-*Pitfalls research for: single-file local HTML meeting-timer / agenda-presenter*
+*Pitfalls research for: single-file local HTML meeting-timer / meeting-manager*
 *Researched: 2026-05-16*

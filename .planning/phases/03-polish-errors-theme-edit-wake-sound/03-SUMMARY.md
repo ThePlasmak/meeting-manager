@@ -11,7 +11,7 @@ completed: 2026-05-16
 
 ## Result
 
-Implemented Phase 3 polish in `agenda-presenter.html`.
+Implemented Phase 3 polish in `meeting-manager.html`.
 
 - Added no-flash theme boot script in `<head>` and persisted light/dark theme toggle.
 - Added first-run empty state for paste/drop/file loading.

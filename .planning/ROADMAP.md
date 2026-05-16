@@ -50,7 +50,7 @@
   3. The timer ticks down smoothly with tabular numerals, displays `MM:SS remaining / MM:SS allocated`, turns amber at <25%, red at 0, and keeps counting into negatives with a `−` prefix.
   4. When the timer goes negative, the whole slide tints red and a static "OVERTIME" banner appears (CSS-only, non-Overwatch typeface, recognizable-but-distinct styling).
   5. Backgrounding the tab for 5 minutes and returning shows the timer snapped to the truth (drift ≤50ms over 10 minutes) — proves rAF + `performance.now()` derivation, not counter decrement.
-  6. The file opens by double-clicking `agenda-presenter.html` from disk; no build step, no external CDN at runtime, no `fetch()`, no `<script type="module">`.
+  6. The file opens by double-clicking `meeting-manager.html` from disk; no build step, no external CDN at runtime, no `fetch()`, no `<script type="module">`.
 
 **Plans:**
 - [x] 01-01: Agenda parser fixture and IR
@@ -169,12 +169,12 @@
 
 ## Progress
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. MVP Vertical Slice — Paste, Render, Tick, Click | 4/4 | Complete | 2026-05-16 |
-| 2. Persistence + Drag-Drop + Keyboard + Nav Truth Table | 1/1 | Complete | 2026-05-16 |
-| 3. Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | 1/1 | Complete | 2026-05-16 |
-| 4. Discord-Readiness Visual Audit | 1/1 | Complete | 2026-05-16 |
+| Phase                                                                         | Plans Complete | Status   | Completed  |
+| ----------------------------------------------------------------------------- | -------------- | -------- | ---------- |
+| 1. MVP Vertical Slice — Paste, Render, Tick, Click                            | 4/4            | Complete | 2026-05-16 |
+| 2. Persistence + Drag-Drop + Keyboard + Nav Truth Table                       | 1/1            | Complete | 2026-05-16 |
+| 3. Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | 1/1            | Complete | 2026-05-16 |
+| 4. Discord-Readiness Visual Audit                                             | 1/1            | Complete | 2026-05-16 |
 
 ---
 
@@ -185,24 +185,24 @@
 **Orphans:** 0 ✓
 **Duplicates:** 0 ✓
 
-| Category | Total | P1 | P2 | P3 | P4 |
-|----------|-------|----|----|----|----|
-| PARSE | 10 | 10 | — | — | — |
-| LOAD | 5 | 1 (LOAD-03) | 3 (LOAD-02,04,05) | 1 (LOAD-01) | — |
-| SLIDE | 5 | 5 | — | — | — |
-| SIDE | 6 | 6 | — | — | — |
-| TIMER | 10 | 9 | — | 1 (TIMER-07) | — |
-| NAV | 6 | — | 6 | — | — |
-| OVER | 4 | 4 | — | — | — |
-| THEME | 4 | — | — | 4 | — |
-| PERSIST | 6 | — | 6 | — | — |
-| GUARD | 2 | — | 2 | — | — |
-| WAKE | 3 | — | — | 3 | — |
-| SOUND | 3 | — | — | 3 | — |
-| ERR | 3 | — | — | 3 | — |
-| BRAND | 5 | — | — | — | 5 |
-| DIST | 6 | 6 | — | — | — |
-| **Totals** | **78** | **41** | **17** | **15** | **5** |
+| Category   | Total  | P1          | P2                | P3           | P4    |
+| ---------- | ------ | ----------- | ----------------- | ------------ | ----- |
+| PARSE      | 10     | 10          | —                 | —            | —     |
+| LOAD       | 5      | 1 (LOAD-03) | 3 (LOAD-02,04,05) | 1 (LOAD-01)  | —     |
+| SLIDE      | 5      | 5           | —                 | —            | —     |
+| SIDE       | 6      | 6           | —                 | —            | —     |
+| TIMER      | 10     | 9           | —                 | 1 (TIMER-07) | —     |
+| NAV        | 6      | —           | 6                 | —            | —     |
+| OVER       | 4      | 4           | —                 | —            | —     |
+| THEME      | 4      | —           | —                 | 4            | —     |
+| PERSIST    | 6      | —           | 6                 | —            | —     |
+| GUARD      | 2      | —           | 2                 | —            | —     |
+| WAKE       | 3      | —           | —                 | 3            | —     |
+| SOUND      | 3      | —           | —                 | 3            | —     |
+| ERR        | 3      | —           | —                 | 3            | —     |
+| BRAND      | 5      | —           | —                 | —            | 5     |
+| DIST       | 6      | 6           | —                 | —            | —     |
+| **Totals** | **78** | **41**      | **17**            | **15**       | **5** |
 
 ---
 

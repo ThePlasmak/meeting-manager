@@ -27,7 +27,7 @@ Build on Phase 1's single-file parser/store/renderer/timer foundation. Add persi
 
 ## Code Context
 
-Phase 1 code lives in `agenda-presenter.html` and currently has:
+Phase 1 code lives in `meeting-manager.html` and currently has:
 
 - parser helpers and fixtures;
 - flat `state`;

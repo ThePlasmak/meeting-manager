@@ -8,11 +8,11 @@
 
 ## Project Reference
 
-**What this is:** Single-file local HTML tool — `agenda-presenter.html` — that turns a Markdown meeting agenda into a Marp-style slide deck with per-slide timers and a clickable agenda sidebar. Sarah double-clicks the file, pastes or drops her agenda markdown, and screenshares the result into Discord to run timed meetings.
+**What this is:** Single-file local HTML tool — `meeting-manager.html` — that turns a Markdown meeting agenda into a Marp-style slide deck with per-slide timers and a clickable agenda sidebar. Sarah double-clicks the file, pastes or drops her agenda markdown, and screenshares the result into Discord to run timed meetings.
 
 **Core value:** Paste markdown → run a timed meeting on screenshare without fiddling.
 
-**Current focus:** v1 complete. All roadmap phases are implemented in `agenda-presenter.html`; remaining work is optional manual Discord screenshare validation.
+**Current focus:** v1 complete. All roadmap phases are implemented in `meeting-manager.html`; remaining work is optional manual Discord screenshare validation.
 
 ---
 
@@ -34,12 +34,12 @@ Phase 4 ██████████  complete
 
 ## Phase Summary
 
-| # | Phase | Status | Requirements | Plans |
-|---|-------|--------|--------------|-------|
-| 1 | MVP Vertical Slice — Paste, Render, Tick, Click | Complete | 41 | 4/4 |
-| 2 | Persistence + Drag-Drop + Keyboard + Nav Truth Table | Complete | 17 | 1/1 |
-| 3 | Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | Complete | 15 | 1/1 |
-| 4 | Discord-Readiness Visual Audit | Complete | 5 | 1/1 |
+| #   | Phase                                                                      | Status   | Requirements | Plans |
+| --- | -------------------------------------------------------------------------- | -------- | ------------ | ----- |
+| 1   | MVP Vertical Slice — Paste, Render, Tick, Click                            | Complete | 41           | 4/4   |
+| 2   | Persistence + Drag-Drop + Keyboard + Nav Truth Table                       | Complete | 17           | 1/1   |
+| 3   | Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | Complete | 15           | 1/1   |
+| 4   | Discord-Readiness Visual Audit                                             | Complete | 5            | 1/1   |
 
 **Total v1 requirements:** 78 (100% mapped)
 
@@ -49,12 +49,12 @@ Phase 4 ██████████  complete
 
 (Filled in as phases complete.)
 
-| Phase | Plans | Plans Repaired | Verifier Issues | Code Review Issues | Notes |
-|-------|-------|----------------|------------------|---------------------|-------|
-| 1 | 4 | 0 | 0 open | Not run | Commit `eef3112`; Playwright + static distribution smoke passed |
-| 2 | 1 | 0 | 0 open | Inline review | Commit `5801cb9`; Playwright smoke passed |
-| 3 | 1 | 0 | 0 open | Inline review | Commit `5801cb9`; Playwright smoke passed |
-| 4 | 1 | 0 | 0 open | Inline review | Commit `5801cb9`; layout/static audit passed |
+| Phase | Plans | Plans Repaired | Verifier Issues | Code Review Issues | Notes                                                           |
+| ----- | ----- | -------------- | --------------- | ------------------ | --------------------------------------------------------------- |
+| 1     | 4     | 0              | 0 open          | Not run            | Commit `eef3112`; Playwright + static distribution smoke passed |
+| 2     | 1     | 0              | 0 open          | Inline review      | Commit `5801cb9`; Playwright smoke passed                       |
+| 3     | 1     | 0              | 0 open          | Inline review      | Commit `5801cb9`; Playwright smoke passed                       |
+| 4     | 1     | 0              | 0 open          | Inline review      | Commit `5801cb9`; layout/static audit passed                    |
 
 ---
 
@@ -132,20 +132,20 @@ None.
 
 ### Quick Tasks Completed
 
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
+| #          | Description                                                        | Date       | Commit  | Directory                                                               |
+| ---------- | ------------------------------------------------------------------ | ---------- | ------- | ----------------------------------------------------------------------- |
 | 260516-001 | Sync AGENTS.md and CLAUDE.md via hardlink and concise shared guide | 2026-05-16 | 8949fb0 | [260516-001-agents-claude-sync](./quick/260516-001-agents-claude-sync/) |
-| 260516-002 | Add spoken time-left button to timer controls | 2026-05-16 | b8ea193 | [260516-read-time-left-button](./quick/260516-read-time-left-button/) |
+| 260516-002 | Add spoken time-left button to timer controls                      | 2026-05-16 | b8ea193 | [260516-read-time-left-button](./quick/260516-read-time-left-button/)   |
 
 ---
 
 ## Session Continuity
 
-**Last session:** 2026-05-16 — Completed v1 phases 2-4 into `agenda-presenter.html`, verified the full local browser workflow, and wrote milestone audit.
+**Last session:** 2026-05-16 — Completed v1 phases 2-4 into `meeting-manager.html`, verified the full local browser workflow, and wrote milestone audit.
 
 **Resume hint:** v1 is complete. Optional next step is a real Discord screenshare compression check.
 
-**v1 completion:** Parser with inline fixtures, Store + reducer skeleton, Renderer (region-scoped: Sidebar / Stage / TimerBar), TimerEngine (single rAF + `performance.now()` derivation), persistence, drag/drop, keyboard navigation, theme, error UI, click-to-edit, wake lock, sound toggle, and Discord-readiness CSS audit, all in `agenda-presenter.html` opened by double-click.
+**v1 completion:** Parser with inline fixtures, Store + reducer skeleton, Renderer (region-scoped: Sidebar / Stage / TimerBar), TimerEngine (single rAF + `performance.now()` derivation), persistence, drag/drop, keyboard navigation, theme, error UI, click-to-edit, wake lock, sound toggle, and Discord-readiness CSS audit, all in `meeting-manager.html` opened by double-click.
 
 ---
 

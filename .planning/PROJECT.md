@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A single-file local HTML tool that turns a Markdown meeting agenda into a Marp-style slide deck with per-slide timers and a clickable agenda sidebar. Sarah double-clicks `agenda-presenter.html`, pastes (or drops in) her agenda markdown, and screenshares the result into Discord to run timed meetings. No build step, no server, works offline.
+A single-file local HTML tool that turns a Markdown meeting agenda into a Marp-style slide deck with per-slide timers and a clickable agenda sidebar. Sarah double-clicks `meeting-manager.html`, pastes (or drops in) her agenda markdown, and screenshares the result into Discord to run timed meetings. No build step, no server, works offline.
 
 ## Core Value
 
@@ -62,7 +62,7 @@ A single-file local HTML tool that turns a Markdown meeting agenda into a Marp-s
 
 - **Tech stack**: Vanilla HTML/CSS/JS in a single file. No build step. No package manager. Reveal.js allowed as a CDN script *only* if vanilla becomes unwieldy.
 - **Distribution**: Must open by double-clicking the `.html` file from disk. Works offline once loaded.
-- **Deliverable**: One file — `agenda-presenter.html`. Self-contained. No external CDN unless it saves significant code.
+- **Deliverable**: One file — `meeting-manager.html`. Self-contained. No external CDN unless it saves significant code.
 - **Persistence**: Browser localStorage only. No server, no cloud, no auth.
 - **Target environment**: Modern Chromium-based desktop browser (Chrome/Edge), screenshared into Discord. No need to support old browsers, no need to support mobile.
 

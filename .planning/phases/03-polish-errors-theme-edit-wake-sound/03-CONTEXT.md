@@ -21,7 +21,7 @@ Build visible polish on top of Phase 2: first-run empty state, better parser/dro
 
 ## Code Context
 
-Phase 2 will introduce storage, lifecycle, and navigation helpers in `agenda-presenter.html`. Phase 3 should reuse those rather than creating a second persistence path.
+Phase 2 will introduce storage, lifecycle, and navigation helpers in `meeting-manager.html`. Phase 3 should reuse those rather than creating a second persistence path.
 
 ## Deferred
 

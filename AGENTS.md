@@ -3,13 +3,13 @@
 ## Project
 
 Meeting Manager - Agenda Presenter is a single-file local HTML tool.
-Sarah double-clicks `agenda-presenter.html`, pastes or drops a Markdown meeting agenda, and screenshares a Marp-style timed slide deck into Discord.
+Sarah double-clicks `meeting-manager.html`, pastes or drops a Markdown meeting agenda, and screenshares a Marp-style timed slide deck into Discord.
 
 Core value: paste markdown -> run a timed meeting on screenshare without fiddling.
 
 ## Hard Constraints
 
-- One deliverable: `agenda-presenter.html`.
+- One deliverable: `meeting-manager.html`.
 - Vanilla HTML/CSS/JS only. No build step, package manager, server, auth, or cloud.
 - Must open from disk with `file://` and work offline after load.
 - Target modern Chromium desktop browsers only.

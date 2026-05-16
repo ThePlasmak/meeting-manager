@@ -5,7 +5,7 @@ name: Persistence drag-drop keyboard navigation
 type: implementation
 wave: 1
 files_modified:
-  - agenda-presenter.html
+  - meeting-manager.html
 autonomous: true
 requirements_addressed:
   - LOAD-02

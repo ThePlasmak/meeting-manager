@@ -20,4 +20,4 @@ Perform the final CSS/readability audit against the completed app. The goal is D
 
 ## Code Context
 
-All visual work lands in `agenda-presenter.html`.
+All visual work lands in `meeting-manager.html`.

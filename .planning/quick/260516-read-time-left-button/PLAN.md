@@ -18,6 +18,6 @@ Add a timer control button that speaks the current agenda timer remaining in nat
 
 ## Files
 
-- `agenda-presenter.html`
+- `meeting-manager.html`
 - `.planning/STATE.md`
 - `.planning/quick/260516-read-time-left-button/SUMMARY.md`

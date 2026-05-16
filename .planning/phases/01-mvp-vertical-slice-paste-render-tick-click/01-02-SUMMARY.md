@@ -11,7 +11,7 @@ completed: 2026-05-16
 
 ## Result
 
-Implemented the visible presenter shell and region-scoped renderer in `agenda-presenter.html`.
+Implemented the visible presenter shell and region-scoped renderer in `meeting-manager.html`.
 
 - Built the single-page layout: fixed left agenda sidebar, right slide stage, and bottom timer bar.
 - Added textarea paste and Load/Sample controls.
@@ -22,7 +22,7 @@ Implemented the visible presenter shell and region-scoped renderer in `agenda-pr
 
 ## Verification
 
-- Playwright file-open smoke loaded `agenda-presenter.html` from `file://`.
+- Playwright file-open smoke loaded `meeting-manager.html` from `file://`.
 - Sample agenda rendered stage title `Weekly Planning`.
 - Sidebar rendered 3 agenda items.
 - Clicking the max-per-person item expanded sub-items; clicking first sub-item rendered `Sarah - 1.5 min`.

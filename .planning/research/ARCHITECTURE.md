@@ -12,7 +12,7 @@ The whole app is one file. Internally it is split into seven cooperating modules
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                            agenda-presenter.html                     │
+│                            meeting-manager.html                     │
 │                                                                      │
 │  ┌────────────────────────────────────────────────────────────────┐  │
 │  │                       UI Layer (DOM)                           │  │
@@ -55,18 +55,18 @@ The whole app is one file. Internally it is split into seven cooperating modules
 
 ### Component Responsibilities
 
-| Component | Owns | Implementation |
-|-----------|------|----------------|
-| **Parser** | Markdown → typed `Agenda` IR (intermediate representation). Pure, no side effects. | One function `parseAgenda(md)` plus small helpers (regex for `— / – / --`, "max N per person" detector, deadline-badge extractor). |
-| **AgendaModel** | Selectors over the parsed IR (`getSlide(i)`, `getSubItem(i, j)`, `totalSlides()`, `flatTimerKeys()`). Pure. | Plain functions on the IR shape. No state of its own. |
-| **Store** | Single mutable `state` object + `dispatch` + `subscribe`. Reducer turns actions into new state. | ~40 lines of vanilla JS. No library. |
-| **TimerEngine** | The ONE `setInterval` for the whole app. On every tick (250ms) it reads `state.cursor` + `state.timers[activeKey]`, recalculates remaining, dispatches `TICK`. Owns nothing of its own — all timer state lives in the store. | Single `setInterval` started at boot, never cleared (cheap; pauses are state, not interval lifecycle). |
-| **Router / SlideController** | Translates navigation intents (`NEXT`, `PREV`, `JUMP`, `SHIFT_NEXT`) into store actions. Knows the agenda structure well enough to compute "next person → next item" semantics. | Pure functions returning actions; the reducer applies them. |
-| **Renderer** | Reads `state`, paints the three DOM regions (sidebar, stage, timer bar). Idempotent: same state → same DOM. | Hand-written `innerHTML` templates or `textContent` updates. Diffing by region, not virtual DOM. |
-| **PersistenceLayer** | Reads/writes `state` ↔ localStorage. Debounces writes. Owns schema version and migrations. | `loadState()` at boot, `subscribe(() => debouncedSave())`. |
-| **ThemeController** | Toggles `data-theme="dark"` on `<html>`, persists choice. | Tiny — sets attribute, dispatches `SET_THEME`. |
-| **KeyboardController** | Maps key events to actions. Single `keydown` listener on `window`. | Switch statement → `dispatch(action)`. |
-| **InputController** | Handles paste/drop of markdown; calls Parser; dispatches `LOAD_AGENDA`. | Two event listeners (paste, drop). |
+| Component                    | Owns                                                                                                                                                                                                                         | Implementation                                                                                                                     |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Parser**                   | Markdown → typed `Agenda` IR (intermediate representation). Pure, no side effects.                                                                                                                                           | One function `parseAgenda(md)` plus small helpers (regex for `— / – / --`, "max N per person" detector, deadline-badge extractor). |
+| **AgendaModel**              | Selectors over the parsed IR (`getSlide(i)`, `getSubItem(i, j)`, `totalSlides()`, `flatTimerKeys()`). Pure.                                                                                                                  | Plain functions on the IR shape. No state of its own.                                                                              |
+| **Store**                    | Single mutable `state` object + `dispatch` + `subscribe`. Reducer turns actions into new state.                                                                                                                              | ~40 lines of vanilla JS. No library.                                                                                               |
+| **TimerEngine**              | The ONE `setInterval` for the whole app. On every tick (250ms) it reads `state.cursor` + `state.timers[activeKey]`, recalculates remaining, dispatches `TICK`. Owns nothing of its own — all timer state lives in the store. | Single `setInterval` started at boot, never cleared (cheap; pauses are state, not interval lifecycle).                             |
+| **Router / SlideController** | Translates navigation intents (`NEXT`, `PREV`, `JUMP`, `SHIFT_NEXT`) into store actions. Knows the agenda structure well enough to compute "next person → next item" semantics.                                              | Pure functions returning actions; the reducer applies them.                                                                        |
+| **Renderer**                 | Reads `state`, paints the three DOM regions (sidebar, stage, timer bar). Idempotent: same state → same DOM.                                                                                                                  | Hand-written `innerHTML` templates or `textContent` updates. Diffing by region, not virtual DOM.                                   |
+| **PersistenceLayer**         | Reads/writes `state` ↔ localStorage. Debounces writes. Owns schema version and migrations.                                                                                                                                   | `loadState()` at boot, `subscribe(() => debouncedSave())`.                                                                         |
+| **ThemeController**          | Toggles `data-theme="dark"` on `<html>`, persists choice.                                                                                                                                                                    | Tiny — sets attribute, dispatches `SET_THEME`.                                                                                     |
+| **KeyboardController**       | Maps key events to actions. Single `keydown` listener on `window`.                                                                                                                                                           | Switch statement → `dispatch(action)`.                                                                                             |
+| **InputController**          | Handles paste/drop of markdown; calls Parser; dispatches `LOAD_AGENDA`.                                                                                                                                                      | Two event listeners (paste, drop).                                                                                                 |
 
 **Single-responsibility check:** No module both *owns DOM* and *owns state*. The Renderer is the only DOM writer. The Store is the only state mutator. The TimerEngine is the only owner of `setInterval`.
 
@@ -75,7 +75,7 @@ The whole app is one file. Internally it is split into seven cooperating modules
 There is one file. Inside it, sections appear in this order, each fenced with a comment banner so you can navigate by Ctrl+F.
 
 ```
-agenda-presenter.html
+meeting-manager.html
 ├── <head>
 │   ├── <style>                                # Section: STYLES
 │   │   ├── :root tokens (light)
@@ -285,7 +285,7 @@ subscribe((s, action) => {
 
 ### Pattern 5: Debounced Whole-State Persistence
 
-**What:** On every dispatch, schedule a `localStorage.setItem('agenda-presenter:v1', JSON.stringify(state))` 500ms later, coalescing rapid bursts (timer ticks).
+**What:** On every dispatch, schedule a `localStorage.setItem('meeting-manager:v1', JSON.stringify(state))` 500ms later, coalescing rapid bursts (timer ticks).
 
 **When to use:** Always here. Loss tolerance is ~half a second.
 
@@ -298,7 +298,7 @@ subscribe((s, action) => {
 
 ```javascript
 // ===== PERSISTENCE =====
-const KEY = 'agenda-presenter:v1';
+const KEY = 'meeting-manager:v1';
 let saveHandle = null;
 
 function scheduleSave() {
@@ -388,7 +388,7 @@ No module called another module. No DOM was touched outside the renderer. No `se
 
 ## Persistence Schema (localStorage)
 
-**Key:** `agenda-presenter:v1` (versioned in the key itself — see Migrations).
+**Key:** `meeting-manager:v1` (versioned in the key itself — see Migrations).
 
 **Shape:**
 
@@ -499,29 +499,29 @@ The user's proposed order — parser → timer state machine → layout — is *
 
 ### Dependency table
 
-| Module | Depends on | Blocks |
-|--------|------------|--------|
-| Parser | nothing | AgendaModel, Renderer, InputController |
-| AgendaModel | Parser IR | Store reducer, Renderer |
-| Store | AgendaModel, action set | Everything below |
-| Renderer | Store, CSS tokens | Visual feedback for all later work |
-| TimerEngine | Store, cursor helper | Timer visuals, overtime |
-| Router | Store | Keyboard `→` / Shift+`→`, sidebar `JUMP` |
-| Persistence | Store schema (frozen) | nothing (additive) |
-| Keyboard | Action set frozen | nothing |
-| Input | Parser, Store | nothing |
-| Theme | CSS tokens | nothing |
+| Module      | Depends on              | Blocks                                   |
+| ----------- | ----------------------- | ---------------------------------------- |
+| Parser      | nothing                 | AgendaModel, Renderer, InputController   |
+| AgendaModel | Parser IR               | Store reducer, Renderer                  |
+| Store       | AgendaModel, action set | Everything below                         |
+| Renderer    | Store, CSS tokens       | Visual feedback for all later work       |
+| TimerEngine | Store, cursor helper    | Timer visuals, overtime                  |
+| Router      | Store                   | Keyboard `→` / Shift+`→`, sidebar `JUMP` |
+| Persistence | Store schema (frozen)   | nothing (additive)                       |
+| Keyboard    | Action set frozen       | nothing                                  |
+| Input       | Parser, Store           | nothing                                  |
+| Theme       | CSS tokens              | nothing                                  |
 
 ## Scaling Considerations
 
 This is a single-user, single-machine, screen-shared tool. "Scale" here means *how long an agenda can be* and *how many ticks before things drift*.
 
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| 1–20 agenda items, single meeting | No changes. This is the design target. |
-| 50+ agenda items | Sidebar may need a small virtual scroll, but at 50 `<li>` elements native scroll is fine. No change. |
+| Scale                                | Architecture Adjustments                                                                                                                                                                                                |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1–20 agenda items, single meeting    | No changes. This is the design target.                                                                                                                                                                                  |
+| 50+ agenda items                     | Sidebar may need a small virtual scroll, but at 50 `<li>` elements native scroll is fine. No change.                                                                                                                    |
 | Multi-hour meetings (timer accuracy) | Already drift-resistant: TimerEngine uses `Date.now()` deltas, not assumed tick spacing. A 3-hour meeting drifts by single-digit seconds at worst, and an out-of-focus tab will throttle but resume correctly on focus. |
-| Many saved agendas | Out of scope (one agenda at a time). If ever wanted, key per `agenda.id` and add a picker. Not now. |
+| Many saved agendas                   | Out of scope (one agenda at a time). If ever wanted, key per `agenda.id` and add a picker. Not now.                                                                                                                     |
 
 ### What breaks first
 
@@ -600,16 +600,16 @@ None. The app is offline. Even fonts are system stack (Inter optional via `@font
 
 ### Internal Boundaries
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| Parser ↔ Store | Function return value (`parseAgenda(md) → IR`); Store ingests via `LOAD_AGENDA` action | Parser must never touch the store directly |
-| Store ↔ Renderer | `subscribe(fn)` callback; renderer reads `state` | Renderer never mutates state |
-| Store ↔ TimerEngine | TimerEngine reads `state` to decide whether to dispatch `TICK`; dispatches `TICK` only | Single interval; no per-slide intervals |
-| Store ↔ PersistenceLayer | Subscribe → debounced `JSON.stringify(state)`; boot-time `loadState()` dispatches `LOAD_AGENDA` if found | Schema version lives in state, not just the key |
-| Store ↔ KeyboardController | One `window.keydown` listener → switch → `dispatch` | Don't bind per-element shortcuts |
-| Store ↔ InputController | Paste/drop handlers → Parser → `dispatch('LOAD_AGENDA')` | Confirm overwrite if `state.agenda` already populated |
-| Renderer ↔ DOM | Region-scoped writes (`sidebar.innerHTML = ...` etc.) | Only place that touches DOM, period |
-| ThemeController ↔ DOM | Sets `<html data-theme>` attribute | CSS does the rest |
+| Boundary                   | Communication                                                                                            | Notes                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Parser ↔ Store             | Function return value (`parseAgenda(md) → IR`); Store ingests via `LOAD_AGENDA` action                   | Parser must never touch the store directly            |
+| Store ↔ Renderer           | `subscribe(fn)` callback; renderer reads `state`                                                         | Renderer never mutates state                          |
+| Store ↔ TimerEngine        | TimerEngine reads `state` to decide whether to dispatch `TICK`; dispatches `TICK` only                   | Single interval; no per-slide intervals               |
+| Store ↔ PersistenceLayer   | Subscribe → debounced `JSON.stringify(state)`; boot-time `loadState()` dispatches `LOAD_AGENDA` if found | Schema version lives in state, not just the key       |
+| Store ↔ KeyboardController | One `window.keydown` listener → switch → `dispatch`                                                      | Don't bind per-element shortcuts                      |
+| Store ↔ InputController    | Paste/drop handlers → Parser → `dispatch('LOAD_AGENDA')`                                                 | Confirm overwrite if `state.agenda` already populated |
+| Renderer ↔ DOM             | Region-scoped writes (`sidebar.innerHTML = ...` etc.)                                                    | Only place that touches DOM, period                   |
+| ThemeController ↔ DOM      | Sets `<html data-theme>` attribute                                                                       | CSS does the rest                                     |
 
 ## Sources
 
