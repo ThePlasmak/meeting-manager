@@ -10,54 +10,54 @@
 
 ### Parsing — `PARSE`
 
-- [ ] **PARSE-01**: Parse the `**Meeting Admins**` block — collect bulleted roles (Meeting Master, Notetaker, anything else listed)
-- [ ] **PARSE-02**: Parse the `**Agenda**` block — each numbered item becomes one slide with title, attribution(s), duration, and deadline
-- [ ] **PARSE-03**: Parse attribution(s) inside `(...)` — comma-separated names; tolerate 0, 1, or many
-- [ ] **PARSE-04**: Parse duration — number + unit (`min`, `mins`, `minutes`, `m`); tolerate decimals (`7.5 min`)
-- [ ] **PARSE-05**: Parse "max per person" semantics — split that item into per-person sub-states (`item.subStates = [{name, durationMs}]`), each with its own timer
-- [ ] **PARSE-06**: Parse `by H:MM AM/PM` deadline into a Date for display
-- [ ] **PARSE-07**: Tolerate em-dash `—`, en-dash `–`, double-dash `--`, AND single-hyphen `-` (with lookahead so it doesn't match list bullets) between title and duration; single `-` is the canonical/default rendering inside the tool
-- [ ] **PARSE-08**: Normalize input on intake — strip BOM, normalize smart quotes to straight, NFC-normalize whitespace
-- [ ] **PARSE-09**: Use the `marked` v18 UMD `lexer()` API on a token stream — not regex-on-raw-string (per research)
-- [ ] **PARSE-10**: Build a fixture file in Phase 1 with all 10+ Markdown variants and parse on every save (smoke-test gate)
+- [x] **PARSE-01**: Parse the `**Meeting Admins**` block — collect bulleted roles (Meeting Master, Notetaker, anything else listed)
+- [x] **PARSE-02**: Parse the `**Agenda**` block — each numbered item becomes one slide with title, attribution(s), duration, and deadline
+- [x] **PARSE-03**: Parse attribution(s) inside `(...)` — comma-separated names; tolerate 0, 1, or many
+- [x] **PARSE-04**: Parse duration — number + unit (`min`, `mins`, `minutes`, `m`); tolerate decimals (`7.5 min`)
+- [x] **PARSE-05**: Parse "max per person" semantics — split that item into per-person sub-states (`item.subStates = [{name, durationMs}]`), each with its own timer
+- [x] **PARSE-06**: Parse `by H:MM AM/PM` deadline into a Date for display
+- [x] **PARSE-07**: Tolerate em-dash `—`, en-dash `–`, double-dash `--`, AND single-hyphen `-` (with lookahead so it doesn't match list bullets) between title and duration; single `-` is the canonical/default rendering inside the tool
+- [x] **PARSE-08**: Normalize input on intake — strip BOM, normalize smart quotes to straight, NFC-normalize whitespace
+- [x] **PARSE-09**: Use the `marked` v18 UMD `lexer()` API on a token stream — not regex-on-raw-string (per research)
+- [x] **PARSE-10**: Build a fixture file in Phase 1 with all 10+ Markdown variants and parse on every save (smoke-test gate)
 
 ### Loading & Input — `LOAD`
 
 - [ ] **LOAD-01**: Empty-state UI when no agenda is loaded — clear "Paste agenda markdown below, or drop a .md file" prompt
 - [ ] **LOAD-02**: A single unified "Load .md" affordance that accepts both modes — clicking opens the OS file picker; dragging a `.md` file onto it (or anywhere on the page) loads it via `FileReader.readAsText()`
-- [ ] **LOAD-03**: Textarea paste — paste markdown directly; "Load" button parses and renders
+- [x] **LOAD-03**: Textarea paste — paste markdown directly; "Load" button parses and renders
 - [ ] **LOAD-04**: When dropping/loading a new `.md` while an agenda is already loaded, show a modal with two options: "Replace agenda" or "Add items to current agenda"
 - [ ] **LOAD-05**: The "Add items" flow lets the user append more items either by pasting more agenda markdown or via a simple form (item title + attribution(s) + duration + deadline); appended items use the same parser path
 
 ### Slide Rendering — `SLIDE`
 
-- [ ] **SLIDE-01**: Slide 1 is the title slide — large meeting title, Meeting Master and Notetaker rendered prominently; no timer on slide 1
-- [ ] **SLIDE-02**: Every subsequent slide renders one agenda item — large title, attribution(s) as subtitle, deadline as a small badge
-- [ ] **SLIDE-03**: For "max per person" items, each sub-state slide shows the *current person's name + their duration* as the title (e.g., "Teck Lee — 7 min"); the parent agenda item title appears as a smaller eyebrow above
-- [ ] **SLIDE-04**: Marp-style aesthetic — lots of whitespace, sans-serif system font stack, one accent color, no shadows/borders by default
-- [ ] **SLIDE-05**: Slide area takes the main ~75% of the viewport (right side of the sidebar)
+- [x] **SLIDE-01**: Slide 1 is the title slide — large meeting title, Meeting Master and Notetaker rendered prominently; no timer on slide 1
+- [x] **SLIDE-02**: Every subsequent slide renders one agenda item — large title, attribution(s) as subtitle, deadline as a small badge
+- [x] **SLIDE-03**: For "max per person" items, each sub-state slide shows the *current person's name + their duration* as the title (e.g., "Teck Lee — 7 min"); the parent agenda item title appears as a smaller eyebrow above
+- [x] **SLIDE-04**: Marp-style aesthetic — lots of whitespace, sans-serif system font stack, one accent color, no shadows/borders by default
+- [x] **SLIDE-05**: Slide area takes the main ~75% of the viewport (right side of the sidebar)
 
 ### Sidebar — `SIDE`
 
-- [ ] **SIDE-01**: Fixed left sidebar (~25% width) with the numbered agenda visible at all times
-- [ ] **SIDE-02**: "Max per person" items render as expandable parents with sub-items (1a Sarah, 1b Teck Lee, 1c Solomon)
-- [ ] **SIDE-03**: Default expand state — current item's sub-states expanded; other items collapsed
-- [ ] **SIDE-04**: Clicking a sidebar item (or sub-item) jumps to that slide/sub-state AND resets that timer to its allocated duration
-- [ ] **SIDE-05**: Current item/sub-item is visually highlighted; completed items are dimmed/checked
-- [ ] **SIDE-06**: Sidebar updates without scroll-position reset when state changes (renderer must diff, not blast innerHTML)
+- [x] **SIDE-01**: Fixed left sidebar (~25% width) with the numbered agenda visible at all times
+- [x] **SIDE-02**: "Max per person" items render as expandable parents with sub-items (1a Sarah, 1b Teck Lee, 1c Solomon)
+- [x] **SIDE-03**: Default expand state — current item's sub-states expanded; other items collapsed
+- [x] **SIDE-04**: Clicking a sidebar item (or sub-item) jumps to that slide/sub-state AND resets that timer to its allocated duration
+- [x] **SIDE-05**: Current item/sub-item is visually highlighted; completed items are dimmed/checked
+- [x] **SIDE-06**: Sidebar updates without scroll-position reset when state changes (renderer must diff, not blast innerHTML)
 
 ### Timer Engine — `TIMER`
 
-- [ ] **TIMER-01**: Per-slide countdown timer showing `MM:SS remaining / MM:SS allocated`
-- [ ] **TIMER-02**: Each slide (and each per-person sub-state) has its own independent running/paused timer state; navigating away and back preserves it
-- [ ] **TIMER-03**: Timer counts down via a **single `requestAnimationFrame` loop** for the whole app, deriving `remainingMs` from `performance.now() - startedAt + accumulatedMs` (per research — never decrement a counter)
-- [ ] **TIMER-04**: Visual cues — green ≥25% remaining, amber <25% remaining, red at 0; counts into negatives with `−` prefix
-- [ ] **TIMER-05**: Pause/play (also Space key) — pause is a `paused: true` flag in state, not interval lifecycle
-- [ ] **TIMER-06**: ±1 minute buttons (also `+`/`−` keys)
+- [x] **TIMER-01**: Per-slide countdown timer showing `MM:SS remaining / MM:SS allocated`
+- [x] **TIMER-02**: Each slide (and each per-person sub-state) has its own independent running/paused timer state; navigating away and back preserves it
+- [x] **TIMER-03**: Timer counts down via a **single `requestAnimationFrame` loop** for the whole app, deriving `remainingMs` from `performance.now() - startedAt + accumulatedMs` (per research — never decrement a counter)
+- [x] **TIMER-04**: Visual cues — green ≥25% remaining, amber <25% remaining, red at 0; counts into negatives with `−` prefix
+- [x] **TIMER-05**: Pause/play (also Space key) — pause is a `paused: true` flag in state, not interval lifecycle
+- [x] **TIMER-06**: ±1 minute buttons (also `+`/`−` keys)
 - [ ] **TIMER-07**: Click time to edit — adding/subtracting from the *remaining* time also adjusts *allocated* by the same delta (coupled edit, single input)
-- [ ] **TIMER-08**: Reset (`R` key) — resets the current slide's or sub-state's timer to its allocated duration; resets only the *current* sub-state, not sibling people in the same item
-- [ ] **TIMER-09**: Do not auto-advance when the timer hits zero — overrun must be visible (anti-feature)
-- [ ] **TIMER-10**: Timer digits use `font-variant-numeric: tabular-nums` so digits don't wiggle
+- [x] **TIMER-08**: Reset (`R` key) — resets the current slide's or sub-state's timer to its allocated duration; resets only the *current* sub-state, not sibling people in the same item
+- [x] **TIMER-09**: Do not auto-advance when the timer hits zero — overrun must be visible (anti-feature)
+- [x] **TIMER-10**: Timer digits use `font-variant-numeric: tabular-nums` so digits don't wiggle
 
 ### Navigation — `NAV`
 
@@ -70,10 +70,10 @@
 
 ### Overtime Visual — `OVER`
 
-- [ ] **OVER-01**: When the current slide's timer goes ≤0, tint the whole slide red
-- [ ] **OVER-02**: Show an "OVERTIME" banner styled in the spirit of Overwatch — bold sans, white core with thick black stroke, slight skew — but CSS-only with shifted colors and a non-Overwatch typeface (per IP research)
-- [ ] **OVER-03**: Banner stays visible until the user advances or resets; overrun also visible in the timer bar
-- [ ] **OVER-04**: Static (no animation) for v1 — keeps it Discord-compression-survivable
+- [x] **OVER-01**: When the current slide's timer goes ≤0, tint the whole slide red
+- [x] **OVER-02**: Show an "OVERTIME" banner styled in the spirit of Overwatch — bold sans, white core with thick black stroke, slight skew — but CSS-only with shifted colors and a non-Overwatch typeface (per IP research)
+- [x] **OVER-03**: Banner stays visible until the user advances or resets; overrun also visible in the timer bar
+- [x] **OVER-04**: Static (no animation) for v1 — keeps it Discord-compression-survivable
 
 ### Theme — `THEME`
 
@@ -124,12 +124,12 @@
 
 ### Single-File Deliverable — `DIST`
 
-- [ ] **DIST-01**: One file — `agenda-presenter.html`, opens by double-clicking
-- [ ] **DIST-02**: Inline all CSS and JS; no external CDN at runtime
-- [ ] **DIST-03**: Inline `marked` v18 UMD as the only library
-- [ ] **DIST-04**: System font stack — no Google Fonts CDN; works fully offline
-- [ ] **DIST-05**: No `<script type="module">` (fails on `file://`); classic scripts only
-- [ ] **DIST-06**: No `fetch()` for local files (CORS-blocked on `file://`); use `FileReader` exclusively for `.md` imports
+- [x] **DIST-01**: One file — `agenda-presenter.html`, opens by double-clicking
+- [x] **DIST-02**: Inline all CSS and JS; no external CDN at runtime
+- [x] **DIST-03**: Inline `marked` v18 UMD as the only library
+- [x] **DIST-04**: System font stack — no Google Fonts CDN; works fully offline
+- [x] **DIST-05**: No `<script type="module">` (fails on `file://`); classic scripts only
+- [x] **DIST-06**: No `fetch()` for local files (CORS-blocked on `file://`); use `FileReader` exclusively for `.md` imports
 
 ---
 
@@ -175,52 +175,52 @@ Every v1 requirement is mapped to exactly one phase. Coverage: 78 / 78 (100%).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PARSE-01 | Phase 1 | Pending |
-| PARSE-02 | Phase 1 | Pending |
-| PARSE-03 | Phase 1 | Pending |
-| PARSE-04 | Phase 1 | Pending |
-| PARSE-05 | Phase 1 | Pending |
-| PARSE-06 | Phase 1 | Pending |
-| PARSE-07 | Phase 1 | Pending |
-| PARSE-08 | Phase 1 | Pending |
-| PARSE-09 | Phase 1 | Pending |
-| PARSE-10 | Phase 1 | Pending |
+| PARSE-01 | Phase 1 | Complete |
+| PARSE-02 | Phase 1 | Complete |
+| PARSE-03 | Phase 1 | Complete |
+| PARSE-04 | Phase 1 | Complete |
+| PARSE-05 | Phase 1 | Complete |
+| PARSE-06 | Phase 1 | Complete |
+| PARSE-07 | Phase 1 | Complete |
+| PARSE-08 | Phase 1 | Complete |
+| PARSE-09 | Phase 1 | Complete |
+| PARSE-10 | Phase 1 | Complete |
 | LOAD-01 | Phase 3 | Pending |
 | LOAD-02 | Phase 2 | Pending |
-| LOAD-03 | Phase 1 | Pending |
+| LOAD-03 | Phase 1 | Complete |
 | LOAD-04 | Phase 2 | Pending |
 | LOAD-05 | Phase 2 | Pending |
-| SLIDE-01 | Phase 1 | Pending |
-| SLIDE-02 | Phase 1 | Pending |
-| SLIDE-03 | Phase 1 | Pending |
-| SLIDE-04 | Phase 1 | Pending |
-| SLIDE-05 | Phase 1 | Pending |
-| SIDE-01 | Phase 1 | Pending |
-| SIDE-02 | Phase 1 | Pending |
-| SIDE-03 | Phase 1 | Pending |
-| SIDE-04 | Phase 1 | Pending |
-| SIDE-05 | Phase 1 | Pending |
-| SIDE-06 | Phase 1 | Pending |
-| TIMER-01 | Phase 1 | Pending |
-| TIMER-02 | Phase 1 | Pending |
-| TIMER-03 | Phase 1 | Pending |
-| TIMER-04 | Phase 1 | Pending |
-| TIMER-05 | Phase 1 | Pending |
-| TIMER-06 | Phase 1 | Pending |
+| SLIDE-01 | Phase 1 | Complete |
+| SLIDE-02 | Phase 1 | Complete |
+| SLIDE-03 | Phase 1 | Complete |
+| SLIDE-04 | Phase 1 | Complete |
+| SLIDE-05 | Phase 1 | Complete |
+| SIDE-01 | Phase 1 | Complete |
+| SIDE-02 | Phase 1 | Complete |
+| SIDE-03 | Phase 1 | Complete |
+| SIDE-04 | Phase 1 | Complete |
+| SIDE-05 | Phase 1 | Complete |
+| SIDE-06 | Phase 1 | Complete |
+| TIMER-01 | Phase 1 | Complete |
+| TIMER-02 | Phase 1 | Complete |
+| TIMER-03 | Phase 1 | Complete |
+| TIMER-04 | Phase 1 | Complete |
+| TIMER-05 | Phase 1 | Complete |
+| TIMER-06 | Phase 1 | Complete |
 | TIMER-07 | Phase 3 | Pending |
-| TIMER-08 | Phase 1 | Pending |
-| TIMER-09 | Phase 1 | Pending |
-| TIMER-10 | Phase 1 | Pending |
+| TIMER-08 | Phase 1 | Complete |
+| TIMER-09 | Phase 1 | Complete |
+| TIMER-10 | Phase 1 | Complete |
 | NAV-01 | Phase 2 | Pending |
 | NAV-02 | Phase 2 | Pending |
 | NAV-03 | Phase 2 | Pending |
 | NAV-04 | Phase 2 | Pending |
 | NAV-05 | Phase 2 | Pending |
 | NAV-06 | Phase 2 | Pending |
-| OVER-01 | Phase 1 | Pending |
-| OVER-02 | Phase 1 | Pending |
-| OVER-03 | Phase 1 | Pending |
-| OVER-04 | Phase 1 | Pending |
+| OVER-01 | Phase 1 | Complete |
+| OVER-02 | Phase 1 | Complete |
+| OVER-03 | Phase 1 | Complete |
+| OVER-04 | Phase 1 | Complete |
 | THEME-01 | Phase 3 | Pending |
 | THEME-02 | Phase 3 | Pending |
 | THEME-03 | Phase 3 | Pending |
@@ -247,12 +247,12 @@ Every v1 requirement is mapped to exactly one phase. Coverage: 78 / 78 (100%).
 | BRAND-03 | Phase 4 | Pending |
 | BRAND-04 | Phase 4 | Pending |
 | BRAND-05 | Phase 4 | Pending |
-| DIST-01 | Phase 1 | Pending |
-| DIST-02 | Phase 1 | Pending |
-| DIST-03 | Phase 1 | Pending |
-| DIST-04 | Phase 1 | Pending |
-| DIST-05 | Phase 1 | Pending |
-| DIST-06 | Phase 1 | Pending |
+| DIST-01 | Phase 1 | Complete |
+| DIST-02 | Phase 1 | Complete |
+| DIST-03 | Phase 1 | Complete |
+| DIST-04 | Phase 1 | Complete |
+| DIST-05 | Phase 1 | Complete |
+| DIST-06 | Phase 1 | Complete |
 
 ### Phase-by-Phase Summary
 
@@ -266,4 +266,4 @@ Every v1 requirement is mapped to exactly one phase. Coverage: 78 / 78 (100%).
 
 ---
 
-*Last updated: 2026-05-16 after roadmap creation (traceability filled in)*
+*Last updated: 2026-05-16 after Phase 1 completion*

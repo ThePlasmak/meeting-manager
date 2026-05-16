@@ -12,7 +12,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: MVP Vertical Slice — Paste, Render, Tick, Click** — Smallest usable product: paste markdown, see a Marp-style slide deck with working sidebar + countdown timer (rAF + `performance.now()` from day one), click sidebar to navigate, overrun shows OVERTIME banner.
+- [x] **Phase 1: MVP Vertical Slice — Paste, Render, Tick, Click** — Smallest usable product: paste markdown, see a Marp-style slide deck with working sidebar + countdown timer (rAF + `performance.now()` from day one), click sidebar to navigate, overrun shows OVERTIME banner.
 - [ ] **Phase 2: Persistence + Drag-Drop + Keyboard + Nav Truth Table** — Turns the prototype into something you can actually run a meeting with: auto-save survives crashes, drop a `.md` file to load, full keyboard control (Space, ←/→, Shift+→, 1–9, R, +/−) with editing-target guard, `beforeunload` warns mid-timer.
 - [ ] **Phase 3: Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime** — Quality-of-life: empty-state UI guides first-time use, parser errors show inline with line numbers, dark/light toggle with no flash, click time to edit, screen stays awake while timer runs, optional zero-crossing chime.
 - [ ] **Phase 4: Discord-Readiness Visual Audit** — Final pass for screenshare: font weights ≥500, sizes ≥24px, AAA contrast, OVERTIME banner has thick stroke that survives 720p compression, layout intact at 100/125/150% zoom.
@@ -53,10 +53,10 @@
   6. The file opens by double-clicking `agenda-presenter.html` from disk; no build step, no external CDN at runtime, no `fetch()`, no `<script type="module">`.
 
 **Plans:**
-- [ ] 01-01: Agenda parser fixture and IR
-- [ ] 01-02: Static presenter shell and sidebar rendering
-- [ ] 01-03: Timer engine, controls, and overrun visual
-- [ ] 01-04: File distribution and Phase 1 smoke verification
+- [x] 01-01: Agenda parser fixture and IR
+- [x] 01-02: Static presenter shell and sidebar rendering
+- [x] 01-03: Timer engine, controls, and overrun visual
+- [x] 01-04: File distribution and Phase 1 smoke verification
 **UI hint**: yes
 
 ---
@@ -168,7 +168,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. MVP Vertical Slice — Paste, Render, Tick, Click | 0/4 | Planned | — |
+| 1. MVP Vertical Slice — Paste, Render, Tick, Click | 4/4 | Complete | 2026-05-16 |
 | 2. Persistence + Drag-Drop + Keyboard + Nav Truth Table | 0/? | Not started | — |
 | 3. Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | 0/? | Not started | — |
 | 4. Discord-Readiness Visual Audit | 0/? | Not started | — |
@@ -212,4 +212,4 @@
 
 ---
 
-*Last updated: 2026-05-16 (Phase 1 planned)*
+*Last updated: 2026-05-16 (Phase 1 complete)*

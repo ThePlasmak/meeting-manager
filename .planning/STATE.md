@@ -1,6 +1,6 @@
 # STATE — Meeting Manager
 
-**Last updated:** 2026-05-16 (Phase 1 planned)
+**Last updated:** 2026-05-16 (Phase 1 complete)
 **Mode:** MVP
 **Granularity:** coarse (4 phases)
 
@@ -12,20 +12,20 @@
 
 **Core value:** Paste markdown → run a timed meeting on screenshare without fiddling.
 
-**Current focus:** Phase 1 — MVP Vertical Slice (Paste, Render, Tick, Click). Get Parser + Store + Renderer + TimerEngine working end-to-end with rAF + `performance.now()` timer derivation from line one.
+**Current focus:** Phase 2 — Persistence + Drag-Drop + Keyboard + Nav Truth Table. Phase 1 now provides the parser/store/renderer/timer foundation in `agenda-presenter.html`.
 
 ---
 
 ## Current Position
 
-**Phase:** 1 — MVP Vertical Slice — Paste, Render, Tick, Click
-**Plan:** 0/4 plans executed — ready to run `$gsd-execute-phase 1`
-**Status:** Phase 1 planned, awaiting execution
-**Progress:** ░░░░░░░░░░ 0/4 phases complete (0%)
+**Phase:** 2 — Persistence + Drag-Drop + Keyboard + Nav Truth Table
+**Plan:** Phase 2 not planned yet
+**Status:** Phase 1 complete; ready to plan Phase 2
+**Progress:** ██░░░░░░░░ 1/4 phases complete (25%)
 
 ```
-Phase 1 ░░░░░░░░░░  not started  ← current
-Phase 2 ░░░░░░░░░░  not started
+Phase 1 ██████████  complete
+Phase 2 ░░░░░░░░░░  not started  ← current
 Phase 3 ░░░░░░░░░░  not started
 Phase 4 ░░░░░░░░░░  not started
 ```
@@ -36,7 +36,7 @@ Phase 4 ░░░░░░░░░░  not started
 
 | # | Phase | Status | Requirements | Plans |
 |---|-------|--------|--------------|-------|
-| 1 | MVP Vertical Slice — Paste, Render, Tick, Click | Planned | 41 | 0/4 |
+| 1 | MVP Vertical Slice — Paste, Render, Tick, Click | Complete | 41 | 4/4 |
 | 2 | Persistence + Drag-Drop + Keyboard + Nav Truth Table | Not started | 17 | 0/? |
 | 3 | Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | Not started | 15 | 0/? |
 | 4 | Discord-Readiness Visual Audit | Not started | 5 | 0/? |
@@ -51,7 +51,7 @@ Phase 4 ░░░░░░░░░░  not started
 
 | Phase | Plans | Plans Repaired | Verifier Issues | Code Review Issues | Notes |
 |-------|-------|----------------|------------------|---------------------|-------|
-| 1 | — | — | — | — | — |
+| 1 | 4 | 0 | 0 open | Not run | Commit `eef3112`; Playwright + static distribution smoke passed |
 | 2 | — | — | — | — | — |
 | 3 | — | — | — | — | — |
 | 4 | — | — | — | — | — |
@@ -121,7 +121,7 @@ From `.planning/research/SUMMARY.md` Phase 3 section:
 
 ### Todos / Reminders
 
-- [ ] Write the parser fixture file (`test-agendas.md` or inline test strings) with all 10+ variants BEFORE writing the parser (Phase 1).
+- [x] Write the parser fixture file (`test-agendas.md` or inline test strings) with all 10+ variants BEFORE writing the parser (Phase 1).
 - [ ] Pin the sub-state navigation truth table (Pitfall #10) into code comments BEFORE writing NAV (Phase 2).
 - [ ] Pin the overrun semantics table (Pitfall #6) into code comments BEFORE writing click-to-edit or reset-during-overrun (Phase 3).
 - [ ] After Phase 4, run the real-Discord-screenshare validation session (screenshot to a second account/device).
@@ -134,18 +134,18 @@ None.
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 260516-001 | Sync AGENTS.md and CLAUDE.md via hardlink and concise shared guide | 2026-05-16 | docs-only | [260516-001-agents-claude-sync](./quick/260516-001-agents-claude-sync/) |
+| 260516-001 | Sync AGENTS.md and CLAUDE.md via hardlink and concise shared guide | 2026-05-16 | 8949fb0 | [260516-001-agents-claude-sync](./quick/260516-001-agents-claude-sync/) |
 
 ---
 
 ## Session Continuity
 
-**Last session:** 2026-05-16 — Planned Phase 1 into four executable plans after quick task 260516-001.
+**Last session:** 2026-05-16 — Executed Phase 1 into `agenda-presenter.html` and verified the MVP vertical slice.
 
-**Resume hint:** Phase 1 is ready to execute. Run `$gsd-execute-phase 1` to build the MVP Vertical Slice.
+**Resume hint:** Phase 1 is complete. Run `$gsd-plan-phase 2` to plan persistence, drag-drop, full keyboard navigation, and lifecycle guards.
 
-**Phase 1 must-haves preview:** Parser with fixture file, Store + reducer skeleton, Renderer (region-scoped: Sidebar / Stage / TimerBar), TimerEngine (single rAF + `performance.now()` derivation), pasting renders slides + working countdown + sidebar click-to-jump + overrun visual, all in `agenda-presenter.html` opened by double-click.
+**Phase 1 completion:** Parser with inline fixtures, Store + reducer skeleton, Renderer (region-scoped: Sidebar / Stage / TimerBar), TimerEngine (single rAF + `performance.now()` derivation), pasting renders slides + working countdown + sidebar click-to-jump + overrun visual, all in `agenda-presenter.html` opened by double-click.
 
 ---
 
-*Last updated: 2026-05-16 (roadmap created, Phase 1 not yet planned)*
+*Last updated: 2026-05-16 (Phase 1 complete)*
