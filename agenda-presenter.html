@@ -4,6 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Meeting Manager - Agenda Presenter</title>
+  <script>
+    (function () {
+      try {
+        var saved = window.localStorage.getItem("meeting-manager.v1.state");
+        var theme = saved ? JSON.parse(saved).theme : "";
+        if (!theme && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          theme = "dark";
+        }
+        document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
+      } catch (_) {
+        document.documentElement.dataset.theme = "light";
+      }
+    }());
+  </script>
   <style>
     :root {
       color-scheme: light;
@@ -11,22 +25,46 @@
       --panel: #ffffff;
       --panel-soft: #eef2f6;
       --text: #111827;
-      --muted: #526070;
-      --faint: #9aa5b1;
+      --muted: #334155;
+      --faint: #6b7280;
       --line: #d7dde5;
       --accent: #2563eb;
       --accent-strong: #1d4ed8;
       --good: #047857;
-      --warn: #b45309;
+      --warn: #92400e;
       --bad: #b91c1c;
       --bad-bg: #fff1f2;
       --stage-bg: #ffffff;
-      --stage-text: #101828;
+      --stage-text: #0b1220;
       --stage-min-font: 24px;
-      --timer-height: 116px;
+      --stage-title-size: clamp(72px, 7vw, 112px);
+      --timer-main-size: clamp(96px, 8vw, 128px);
+      --timer-height: 136px;
       --sidebar-width: clamp(240px, 25vw, 380px);
       --radius: 8px;
+      --body-weight: 500;
+      --stage-weight: 600;
+      --title-weight: 820;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: #121a2a;
+      --panel-soft: #1c2738;
+      --text: #f8fafc;
+      --muted: #d6dee8;
+      --faint: #aebacc;
+      --line: #334155;
+      --accent: #60a5fa;
+      --accent-strong: #93c5fd;
+      --good: #34d399;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --bad-bg: #3f1218;
+      --stage-bg: #0f172a;
+      --stage-text: #f8fafc;
     }
 
     * {
@@ -40,9 +78,11 @@
       background: var(--bg);
       color: var(--text);
       overflow: hidden;
+      font-weight: var(--body-weight);
     }
 
     button,
+    input,
     textarea {
       font: inherit;
     }
@@ -55,6 +95,13 @@
       min-height: 36px;
       padding: 0 12px;
       cursor: pointer;
+    }
+
+    input {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--text);
     }
 
     button:hover:not(:disabled) {
@@ -115,8 +162,10 @@
       display: flex;
       gap: 8px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
+    button.primary,
     .load-actions .primary {
       background: var(--accent);
       border-color: var(--accent);
@@ -134,6 +183,72 @@
     .parse-status.is-error {
       color: var(--bad);
       font-weight: 650;
+    }
+
+    .storage-banner,
+    .drop-hint,
+    .error-panel {
+      border-radius: var(--radius);
+      padding: 9px 10px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .storage-banner {
+      display: none;
+      background: #fff7ed;
+      color: #7c2d12;
+      border: 1px solid #fed7aa;
+      font-weight: 700;
+    }
+
+    html[data-theme="dark"] .storage-banner {
+      background: #451a03;
+      color: #ffedd5;
+      border-color: #9a3412;
+    }
+
+    .storage-banner.is-visible {
+      display: block;
+    }
+
+    .drop-hint {
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      background: var(--panel-soft);
+      font-weight: 650;
+    }
+
+    .app-shell.is-dragover .drop-hint,
+    .app-shell.is-dragover .stage {
+      outline: 3px solid var(--accent);
+      outline-offset: -3px;
+    }
+
+    .error-panel {
+      display: none;
+      background: var(--bad-bg);
+      border: 1px solid rgba(185, 28, 28, 0.45);
+      color: var(--bad);
+      font-weight: 700;
+    }
+
+    .error-panel.is-visible {
+      display: block;
+    }
+
+    .error-panel ul {
+      margin: 6px 0 0;
+      padding-left: 18px;
+    }
+
+    .hidden-file {
+      position: absolute;
+      inset: auto;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .agenda-list {
@@ -217,6 +332,22 @@
       background: var(--stage-bg);
     }
 
+    .app-tools {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 3;
+    }
+
+    .tool-toggle {
+      min-height: 34px;
+      background: var(--panel);
+      color: var(--text);
+      font-weight: 800;
+    }
+
     .stage {
       position: relative;
       min-width: 0;
@@ -230,11 +361,17 @@
       gap: 22px;
       padding: clamp(36px, 5vw, 84px);
       overflow: hidden;
+      font-weight: var(--stage-weight);
     }
 
     .stage.is-overtime {
-      background: linear-gradient(180deg, #fff3f3 0%, #ffe1e3 100%);
+      background: linear-gradient(180deg, #fff1f2 0%, #ffdce0 100%);
       box-shadow: inset 0 0 0 8px rgba(185, 28, 28, 0.18);
+    }
+
+    html[data-theme="dark"] .stage.is-overtime {
+      background: linear-gradient(180deg, #3f1218 0%, #58151d 100%);
+      box-shadow: inset 0 0 0 8px rgba(248, 113, 113, 0.28);
     }
 
     .eyebrow {
@@ -249,10 +386,10 @@
     .stage h1 {
       margin: 0;
       max-width: 14ch;
-      font-size: clamp(54px, 7vw, 104px);
+      font-size: var(--stage-title-size);
       line-height: 0.98;
       letter-spacing: 0;
-      font-weight: 800;
+      font-weight: var(--title-weight);
       text-wrap: balance;
     }
 
@@ -280,6 +417,15 @@
       font-weight: 700;
       color: var(--muted);
       background: var(--panel);
+    }
+
+    .empty-list {
+      margin: 0;
+      padding-left: 1.2em;
+      color: var(--muted);
+      font-size: var(--stage-min-font);
+      line-height: 1.35;
+      font-weight: 650;
     }
 
     .admin-grid {
@@ -315,8 +461,8 @@
       top: clamp(28px, 5vh, 54px);
       right: clamp(28px, 5vw, 70px);
       transform: skew(-12deg);
-      background: #d81f26;
-      border: 6px solid #111827;
+      background: #c1121f;
+      border: 8px solid #0b1220;
       padding: 8px 22px 10px;
       color: #ffffff;
       font-size: clamp(42px, 5vw, 78px);
@@ -350,6 +496,7 @@
       gap: 16px;
       min-width: 0;
       color: var(--good);
+      flex-wrap: wrap;
     }
 
     .timer-readout.is-warn {
@@ -361,11 +508,21 @@
     }
 
     .timer-main {
-      font-size: clamp(58px, 7vw, 94px);
+      border: 0;
+      background: transparent;
+      padding: 0;
+      min-height: 0;
+      color: inherit;
+      font-size: var(--timer-main-size);
       line-height: 0.9;
       font-weight: 850;
       font-variant-numeric: tabular-nums;
       letter-spacing: 0;
+    }
+
+    .timer-main:hover:not(:disabled) {
+      border-color: transparent;
+      color: inherit;
     }
 
     .timer-sub {
@@ -374,6 +531,23 @@
       font-weight: 750;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+    }
+
+    .timer-state {
+      color: inherit;
+      font-size: 24px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .timer-edit-input {
+      width: 190px;
+      min-height: 72px;
+      padding: 0 12px;
+      font-size: 48px;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
     }
 
     .timer-controls {
@@ -400,28 +574,93 @@
       white-space: nowrap;
       border: 0;
     }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(15, 23, 42, 0.46);
+      z-index: 20;
+    }
+
+    .modal-backdrop.is-visible {
+      display: grid;
+    }
+
+    .modal {
+      width: min(460px, calc(100vw - 40px));
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      box-shadow: 0 22px 70px rgba(15, 23, 42, 0.28);
+    }
+
+    .modal h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .modal p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div id="appShell" class="app-shell">
     <aside class="sidebar" aria-label="Agenda">
       <section class="load-panel">
         <label for="markdownInput">Agenda Markdown</label>
         <textarea id="markdownInput" spellcheck="false"></textarea>
         <div class="load-actions">
           <button id="loadButton" class="primary" type="button">Load</button>
+          <button id="fileButton" type="button">Load .md</button>
           <button id="sampleButton" type="button">Sample</button>
         </div>
+        <input id="fileInput" class="hidden-file" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain">
+        <div id="dropHint" class="drop-hint">Drop a .md, .markdown, or .txt agenda anywhere.</div>
+        <div id="storageBanner" class="storage-banner" role="status"></div>
+        <div id="errorPanel" class="error-panel" role="alert"></div>
         <div id="parseStatus" class="parse-status" aria-live="polite"></div>
       </section>
       <nav id="agendaList" class="agenda-list" aria-label="Agenda items"></nav>
     </aside>
 
     <main class="stage-wrap">
+      <div class="app-tools" aria-label="Preferences">
+        <button id="themeButton" class="tool-toggle" type="button">Dark</button>
+        <button id="soundButton" class="tool-toggle" type="button">Chime Off</button>
+      </div>
       <section id="stage" class="stage" aria-live="polite"></section>
     </main>
 
     <footer id="timerbar" class="timerbar"></footer>
+  </div>
+
+  <div id="loadModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="loadModalTitle">
+    <div class="modal">
+      <h2 id="loadModalTitle">Load agenda</h2>
+      <p id="loadModalBody">Choose how to load the new agenda text.</p>
+      <div class="modal-actions">
+        <button id="cancelPendingLoadButton" type="button">Cancel</button>
+        <button id="addItemsButton" type="button">Add items</button>
+        <button id="replaceAgendaButton" class="primary" type="button">Replace agenda</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -452,11 +691,26 @@
       "3. Decision review (Solomon) -- 3 mins by 1:12 PM"
     ].join("\n");
 
+    var STORAGE_KEY = "meeting-manager.v1.state";
+    var SAVE_DELAY_MS = 500;
+    var FILE_EXTENSIONS = /\.(md|markdown|txt)$/i;
+
     var state = {
       agenda: null,
       cursor: { slideIndex: 0, subIndex: 0 },
       timers: {},
+      rawMarkdown: "",
+      agendaHash: "",
       errors: [],
+      fileError: "",
+      restoredNotice: false,
+      storageAvailable: true,
+      storageMessage: "",
+      theme: document.documentElement.dataset.theme === "dark" ? "dark" : "light",
+      soundEnabled: false,
+      pendingLoad: null,
+      editingTimer: null,
+      zeroNotified: {},
       lastAction: null
     };
 
@@ -464,6 +718,9 @@
     var lastRenderedCursorKey = "";
     var lastRenderedAgendaId = "";
     var rafId = 0;
+    var saveTimerId = 0;
+    var wakeLock = null;
+    var audioContext = null;
 
     var els = {};
 
@@ -544,6 +801,30 @@
       return (negative ? "-" : "") + String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
     }
 
+    function formatEditMs(ms) {
+      var totalSeconds = Math.max(0, Math.round(ms / 1000));
+      return String(Math.floor(totalSeconds / 60)) + ":" + String(totalSeconds % 60).padStart(2, "0");
+    }
+
+    function parseTimeInput(value) {
+      var text = String(value || "").trim();
+      var clock = text.match(/^(\d{1,3}):([0-5]\d)$/);
+      if (clock) return (Number(clock[1]) * 60 + Number(clock[2])) * 1000;
+      var minutes = text.match(/^(\d+(?:\.\d+)?)\s*(?:m|min|mins|minutes)?$/i);
+      if (minutes) return durationToMs(minutes[1]);
+      return null;
+    }
+
+    function hashText(text) {
+      var hash = 2166136261;
+      var input = String(text || "");
+      for (var i = 0; i < input.length; i += 1) {
+        hash ^= input.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return (hash >>> 0).toString(16);
+    }
+
     function parseDeadline(text) {
       var match = String(text || "").match(/\bby\s+([0-9]{1,2}(?::[0-9]{2})?\s*(?:am|pm)?)\b/i);
       if (!match) return null;
@@ -578,6 +859,12 @@
       if (className) node.className = className;
       if (text != null) node.textContent = text;
       return node;
+    }
+
+    function setAppError(message) {
+      state.fileError = message || "";
+      renderStatus(state);
+      scheduleSave();
     }
 
     // ===== PARSER =====
@@ -755,7 +1042,8 @@
             agendaIndex: item.agendaIndex,
             itemId: "item-" + item.agendaIndex
           };
-        })
+        }),
+        [{ type: "complete", slideIndex: items.length + 1, title: "Meeting complete", timerKey: null }]
       );
 
       return {
@@ -769,8 +1057,26 @@
     }
 
     // ===== AGENDA MODEL =====
+    function getCompleteSlideIndex(agenda) {
+      return agenda ? agenda.items.length + 1 : 0;
+    }
+
+    function isCompleteSlide(s) {
+      return !!(s.agenda && s.cursor.slideIndex === getCompleteSlideIndex(s.agenda));
+    }
+
+    function clampCursor(agenda, cursor) {
+      var maxSlide = getCompleteSlideIndex(agenda);
+      var slideIndex = Math.min(Math.max(Number(cursor && cursor.slideIndex) || 0, 0), maxSlide);
+      var item = agenda && slideIndex > 0 && slideIndex <= agenda.items.length ? agenda.items[slideIndex - 1] : null;
+      var maxSub = hasSubStates(item) ? item.subStates.length - 1 : 0;
+      var subIndex = Math.min(Math.max(Number(cursor && cursor.subIndex) || 0, 0), maxSub);
+      return { slideIndex: slideIndex, subIndex: subIndex };
+    }
+
     function getCurrentItem(s) {
       if (!s.agenda || s.cursor.slideIndex === 0) return null;
+      if (isCompleteSlide(s)) return null;
       return s.agenda.items[s.cursor.slideIndex - 1] || null;
     }
 
@@ -793,6 +1099,7 @@
     function getCurrentSlide(s) {
       if (!s.agenda) return null;
       if (s.cursor.slideIndex === 0) return s.agenda.slides[0];
+      if (isCompleteSlide(s)) return s.agenda.slides[s.agenda.slides.length - 1];
       return getCurrentItem(s);
     }
 
@@ -823,6 +1130,49 @@
       });
     }
 
+    function getLastCursor(agenda) {
+      if (!agenda || !agenda.items.length) return { slideIndex: 0, subIndex: 0 };
+      var item = agenda.items[agenda.items.length - 1];
+      return {
+        slideIndex: item.slideIndex,
+        subIndex: hasSubStates(item) ? item.subStates.length - 1 : 0
+      };
+    }
+
+    function getNextCursor(s, skipPeople) {
+      if (!s.agenda) return s.cursor;
+      if (isCompleteSlide(s)) return s.cursor;
+      if (s.cursor.slideIndex === 0) {
+        return s.agenda.items.length ? { slideIndex: 1, subIndex: 0 } : { slideIndex: getCompleteSlideIndex(s.agenda), subIndex: 0 };
+      }
+      var item = getCurrentItem(s);
+      if (item && hasSubStates(item) && !skipPeople && s.cursor.subIndex < item.subStates.length - 1) {
+        return { slideIndex: s.cursor.slideIndex, subIndex: s.cursor.subIndex + 1 };
+      }
+      if (s.cursor.slideIndex < s.agenda.items.length) {
+        return { slideIndex: s.cursor.slideIndex + 1, subIndex: 0 };
+      }
+      return { slideIndex: getCompleteSlideIndex(s.agenda), subIndex: 0 };
+    }
+
+    function getPreviousCursor(s) {
+      if (!s.agenda) return s.cursor;
+      if (isCompleteSlide(s)) return getLastCursor(s.agenda);
+      if (s.cursor.slideIndex === 0) return s.cursor;
+      var item = getCurrentItem(s);
+      if (item && hasSubStates(item) && s.cursor.subIndex > 0) {
+        return { slideIndex: s.cursor.slideIndex, subIndex: s.cursor.subIndex - 1 };
+      }
+      if (s.cursor.slideIndex > 1) {
+        var previous = s.agenda.items[s.cursor.slideIndex - 2];
+        return {
+          slideIndex: previous.slideIndex,
+          subIndex: hasSubStates(previous) ? previous.subStates.length - 1 : 0
+        };
+      }
+      return { slideIndex: 0, subIndex: 0 };
+    }
+
     // ===== STORE =====
     function subscribe(fn) {
       subscribers.add(fn);
@@ -832,23 +1182,40 @@
     function dispatch(action) {
       reduce(state, action);
       subscribers.forEach(function (fn) { fn(state, action); });
+      if (action.type !== "BOOT") {
+        scheduleSave();
+        syncWakeLock();
+      }
     }
 
     function reduce(s, action) {
       s.lastAction = action.type;
       if (action.type === "LOAD_AGENDA") {
         s.agenda = action.agenda;
-        s.cursor = { slideIndex: 0, subIndex: 0 };
-        s.timers = createTimers(action.agenda);
+        s.rawMarkdown = action.rawMarkdown || action.agenda.rawMarkdown;
+        s.agendaHash = hashText(s.rawMarkdown);
+        s.cursor = clampCursor(action.agenda, action.cursor || { slideIndex: 0, subIndex: 0 });
+        s.timers = action.timers || createTimers(action.agenda);
+        Object.keys(s.timers).forEach(function (key) { s.timers[key].startedAt = null; });
         s.errors = action.agenda.errors || [];
+        s.fileError = action.fileError || "";
+        s.restoredNotice = !!action.restored;
+        s.pendingLoad = null;
+        s.editingTimer = null;
       }
       if (action.type === "JUMP_TO") {
-        s.cursor = {
+        s.cursor = clampCursor(s.agenda, {
           slideIndex: action.slideIndex,
           subIndex: action.subIndex || 0
-        };
+        });
         var key = getCurrentTimerKey(s);
-        if (key) resetTimer(s.timers[key]);
+        if (key && action.reset) resetTimer(s.timers[key]);
+        s.editingTimer = null;
+      }
+      if (action.type === "NAVIGATE") {
+        var next = action.direction === "previous" ? getPreviousCursor(s) : getNextCursor(s, action.skipPeople);
+        s.cursor = clampCursor(s.agenda, next);
+        s.editingTimer = null;
       }
       if (action.type === "TOGGLE_PAUSE") {
         var timer = getCurrentTimer(s);
@@ -859,11 +1226,69 @@
       }
       if (action.type === "RESET_TIMER") {
         var reset = getCurrentTimer(s);
-        if (reset) resetTimer(reset);
+        if (reset) {
+          resetTimer(reset);
+          delete s.zeroNotified[getCurrentTimerKey(s)];
+        }
       }
       if (action.type === "ADJUST_TIMER") {
         var adjusted = getCurrentTimer(s);
-        if (adjusted) adjustTimer(adjusted, action.deltaMs);
+        if (adjusted) {
+          adjustTimer(adjusted, action.deltaMs);
+          if (remainingMs(adjusted) > 0) delete s.zeroNotified[getCurrentTimerKey(s)];
+        }
+      }
+      if (action.type === "SET_PENDING_LOAD") {
+        s.pendingLoad = action.pendingLoad;
+      }
+      if (action.type === "CLEAR_PENDING_LOAD") {
+        s.pendingLoad = null;
+      }
+      if (action.type === "TOGGLE_THEME") {
+        s.theme = s.theme === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = s.theme;
+      }
+      if (action.type === "TOGGLE_SOUND") {
+        s.soundEnabled = !s.soundEnabled;
+      }
+      if (action.type === "START_TIMER_EDIT") {
+        var editTimer = getCurrentTimer(s);
+        var editKey = getCurrentTimerKey(s);
+        if (editTimer && editKey) {
+          pauseTimer(editTimer);
+          s.editingTimer = {
+            key: editKey,
+            allocatedMs: editTimer.allocatedMs,
+            accumulatedMs: editTimer.accumulatedMs,
+            paused: true,
+            remainingMs: remainingMs(editTimer)
+          };
+        }
+      }
+      if (action.type === "COMMIT_TIMER_EDIT") {
+        var current = getCurrentTimer(s);
+        if (current && s.editingTimer) {
+          var nextRemaining = parseTimeInput(action.value);
+          if (nextRemaining != null) {
+            var delta = nextRemaining - s.editingTimer.remainingMs;
+            current.allocatedMs = Math.max(1000, current.allocatedMs + delta);
+            current.accumulatedMs = Math.max(0, current.allocatedMs - nextRemaining);
+            current.startedAt = null;
+            current.paused = true;
+            if (remainingMs(current) > 0) delete s.zeroNotified[getCurrentTimerKey(s)];
+          }
+          s.editingTimer = null;
+        }
+      }
+      if (action.type === "CANCEL_TIMER_EDIT") {
+        if (s.editingTimer && s.timers[s.editingTimer.key]) {
+          var original = s.timers[s.editingTimer.key];
+          original.allocatedMs = s.editingTimer.allocatedMs;
+          original.accumulatedMs = s.editingTimer.accumulatedMs;
+          original.startedAt = null;
+          original.paused = true;
+        }
+        s.editingTimer = null;
       }
     }
 
@@ -879,6 +1304,112 @@
         }
       });
       return timers;
+    }
+
+    // ===== PERSISTENCE =====
+    function safeStorageGet() {
+      try {
+        return window.localStorage.getItem(STORAGE_KEY);
+      } catch (error) {
+        state.storageAvailable = false;
+        state.storageMessage = "Auto-save unavailable. State will last for this tab only.";
+        return null;
+      }
+    }
+
+    function safeStorageSet(value) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, value);
+        state.storageAvailable = true;
+        state.storageMessage = "";
+        return true;
+      } catch (error) {
+        state.storageAvailable = false;
+        state.storageMessage = "Auto-save unavailable. State will last for this tab only.";
+        return false;
+      }
+    }
+
+    function serializeTimers() {
+      var saved = {};
+      Object.keys(state.timers).forEach(function (key) {
+        var timer = state.timers[key];
+        saved[key] = {
+          allocatedMs: timer.allocatedMs,
+          accumulatedMs: elapsedMs(timer),
+          paused: true,
+          wasRunning: !timer.paused
+        };
+      });
+      return saved;
+    }
+
+    function serializeState() {
+      return {
+        version: 1,
+        savedAt: new Date().toISOString(),
+        rawMarkdown: state.rawMarkdown || els.markdownInput.value || "",
+        agendaHash: hashText(state.rawMarkdown || els.markdownInput.value || ""),
+        cursor: state.cursor,
+        timers: serializeTimers(),
+        theme: state.theme,
+        soundEnabled: !!state.soundEnabled
+      };
+    }
+
+    function scheduleSave() {
+      if (saveTimerId) window.clearTimeout(saveTimerId);
+      saveTimerId = window.setTimeout(forceSave, SAVE_DELAY_MS);
+    }
+
+    function forceSave() {
+      if (saveTimerId) {
+        window.clearTimeout(saveTimerId);
+        saveTimerId = 0;
+      }
+      safeStorageSet(JSON.stringify(serializeState()));
+      renderStorageBanner();
+    }
+
+    function normalizeSavedTimers(agenda, savedTimers) {
+      var timers = createTimers(agenda);
+      Object.keys(timers).forEach(function (key) {
+        var saved = savedTimers && savedTimers[key];
+        if (!saved) return;
+        timers[key].allocatedMs = Math.max(1000, Number(saved.allocatedMs) || timers[key].allocatedMs);
+        timers[key].accumulatedMs = Math.max(0, Number(saved.accumulatedMs) || 0);
+        timers[key].startedAt = null;
+        timers[key].paused = true;
+      });
+      return timers;
+    }
+
+    function restoreFromStorage() {
+      var raw = safeStorageGet();
+      if (!raw) return false;
+      try {
+        var saved = JSON.parse(raw);
+        if (!saved || !saved.rawMarkdown) return false;
+        state.theme = saved.theme === "dark" ? "dark" : "light";
+        state.soundEnabled = !!saved.soundEnabled;
+        document.documentElement.dataset.theme = state.theme;
+        var agenda = parseAgenda(saved.rawMarkdown);
+        var currentHash = hashText(saved.rawMarkdown);
+        dispatch({
+          type: "LOAD_AGENDA",
+          agenda: agenda,
+          rawMarkdown: saved.rawMarkdown,
+          cursor: currentHash === saved.agendaHash ? saved.cursor : { slideIndex: 0, subIndex: 0 },
+          timers: currentHash === saved.agendaHash ? normalizeSavedTimers(agenda, saved.timers) : createTimers(agenda),
+          restored: true
+        });
+        els.markdownInput.value = saved.rawMarkdown;
+        return true;
+      } catch (error) {
+        state.storageAvailable = false;
+        state.storageMessage = "Saved state could not be restored. Starting fresh.";
+        return false;
+      }
     }
 
     // ===== TIMER ENGINE =====
@@ -927,9 +1458,74 @@
       timer.allocatedMs = Math.max(1000, timer.allocatedMs + deltaMs);
     }
 
+    function anyTimerRunning() {
+      return Object.keys(state.timers).some(function (key) {
+        return !state.timers[key].paused;
+      });
+    }
+
+    function timerStateLabel(timer) {
+      if (!timer) return "No timer";
+      if (remainingMs(timer) <= 0) return "Overtime";
+      if (remainingMs(timer) / timer.allocatedMs < 0.25) return "Low time";
+      return timer.paused ? "Paused" : "Running";
+    }
+
+    function playChime() {
+      if (!state.soundEnabled) return;
+      try {
+        audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+        var oscillator = audioContext.createOscillator();
+        var gain = audioContext.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.28);
+        oscillator.connect(gain).connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (_) {
+        // Sound is optional; unsupported audio must not interrupt the meeting.
+      }
+    }
+
+    function checkZeroCrossing() {
+      var key = getCurrentTimerKey(state);
+      var timer = key ? state.timers[key] : null;
+      if (!timer) return;
+      if (remainingMs(timer) <= 0 && !state.zeroNotified[key]) {
+        state.zeroNotified[key] = true;
+        playChime();
+      }
+      if (remainingMs(timer) > 0 && state.zeroNotified[key]) {
+        delete state.zeroNotified[key];
+      }
+    }
+
+    function syncWakeLock() {
+      if (!("wakeLock" in navigator)) return;
+      if (anyTimerRunning() && !wakeLock && document.visibilityState === "visible") {
+        navigator.wakeLock.request("screen").then(function (sentinel) {
+          wakeLock = sentinel;
+          wakeLock.addEventListener("release", function () {
+            wakeLock = null;
+          });
+        }).catch(function () {
+          wakeLock = null;
+        });
+      }
+      if (!anyTimerRunning() && wakeLock) {
+        wakeLock.release().catch(function () {}).finally(function () {
+          wakeLock = null;
+        });
+      }
+    }
+
     function tick() {
       updateTimerDisplay(state);
       renderStageOverrun(state);
+      checkZeroCrossing();
       rafId = window.requestAnimationFrame(tick);
     }
 
@@ -949,21 +1545,59 @@
         renderTimerBar(s);
       }
       renderStatus(s);
+      renderChrome(s);
+      renderModal(s);
+      renderStorageBanner();
       lastRenderedAgendaId = agendaId;
       lastRenderedCursorKey = cursorKey;
     }
 
     function renderStatus(s) {
       els.parseStatus.classList.toggle("is-error", !!(s.errors && s.errors.length));
+      els.errorPanel.classList.toggle("is-visible", !!(s.fileError || (s.errors && s.errors.length)));
+      els.errorPanel.replaceChildren();
+      if (s.fileError) {
+        els.errorPanel.appendChild(el("div", "", s.fileError));
+      }
+      if (s.errors && s.errors.length) {
+        var list = el("ul", "", null);
+        s.errors.slice(0, 5).forEach(function (error) {
+          list.appendChild(el("li", "", (error.line ? "Line " + error.line + ": " : "") + error.message));
+        });
+        els.errorPanel.appendChild(list);
+      }
       if (!s.agenda) {
-        els.parseStatus.textContent = "";
+        els.parseStatus.textContent = s.fileError || "";
         return;
       }
       if (s.errors.length) {
         var first = s.errors[0];
         els.parseStatus.textContent = (first.line ? "Line " + first.line + ": " : "") + first.message;
+      } else if (s.restoredNotice) {
+        els.parseStatus.textContent = s.agenda.items.length + " agenda item" + (s.agenda.items.length === 1 ? "" : "s") + " restored - timer paused";
       } else {
         els.parseStatus.textContent = s.agenda.items.length + " agenda item" + (s.agenda.items.length === 1 ? "" : "s") + " loaded";
+      }
+    }
+
+    function renderChrome(s) {
+      els.themeButton.textContent = s.theme === "dark" ? "Light" : "Dark";
+      els.soundButton.textContent = s.soundEnabled ? "Chime On" : "Chime Off";
+    }
+
+    function renderStorageBanner() {
+      if (!els.storageBanner) return;
+      els.storageBanner.classList.toggle("is-visible", !state.storageAvailable || !!state.storageMessage);
+      els.storageBanner.textContent = state.storageMessage || "";
+    }
+
+    function renderModal(s) {
+      var visible = !!s.pendingLoad;
+      els.loadModal.classList.toggle("is-visible", visible);
+      if (visible) {
+        els.loadModalBody.textContent = s.pendingLoad.name
+          ? "Load " + s.pendingLoad.name + " as a replacement, or append its agenda items."
+          : "Load the new agenda as a replacement, or append its agenda items.";
       }
     }
 
@@ -1015,7 +1649,12 @@
       if (!s.agenda) {
         els.stage.appendChild(el("p", "eyebrow", "Meeting Manager"));
         els.stage.appendChild(el("h1", "", "Agenda Presenter"));
-        els.stage.appendChild(el("p", "subtitle", "Paste a Markdown agenda, then load it."));
+        els.stage.appendChild(el("p", "subtitle", "Paste agenda markdown below, or drop a .md file."));
+        var emptyList = el("ul", "empty-list", null);
+        emptyList.appendChild(el("li", "", "Use the Load button for pasted text."));
+        emptyList.appendChild(el("li", "", "Use Load .md or drop a file for local agendas."));
+        emptyList.appendChild(el("li", "", "Timers stay local in this browser."));
+        els.stage.appendChild(emptyList);
         return;
       }
 
@@ -1031,6 +1670,13 @@
           grid.appendChild(card);
         });
         els.stage.appendChild(grid);
+        return;
+      }
+
+      if (isCompleteSlide(s)) {
+        els.stage.appendChild(el("p", "eyebrow", "Done"));
+        els.stage.appendChild(el("h1", "", "Meeting complete"));
+        els.stage.appendChild(el("p", "subtitle", "All agenda items have been reached."));
         return;
       }
 
@@ -1081,14 +1727,33 @@
         var titleReadout = el("div", "timer-readout", null);
         titleReadout.appendChild(el("span", "timer-main", "--:--"));
         titleReadout.appendChild(el("span", "timer-sub", "No timer"));
+        titleReadout.appendChild(el("span", "timer-state", "Idle"));
         els.timerbar.appendChild(titleReadout);
         els.timerbar.appendChild(el("div", "timer-controls", ""));
         return;
       }
 
       var readout = el("div", "timer-readout " + timerStatus(timer), null);
-      readout.appendChild(el("span", "timer-main", formatMs(remainingMs(timer))));
+      if (s.editingTimer && s.editingTimer.key === getCurrentTimerKey(s)) {
+        var input = el("input", "timer-edit-input", null);
+        input.type = "text";
+        input.value = formatEditMs(Math.max(0, remainingMs(timer)));
+        input.inputMode = "numeric";
+        input.setAttribute("aria-label", "Edit remaining time");
+        readout.appendChild(input);
+        window.setTimeout(function () {
+          input.focus();
+          input.select();
+        }, 0);
+      } else {
+        var editButton = el("button", "timer-main", formatMs(remainingMs(timer)));
+        editButton.type = "button";
+        editButton.dataset.action = "START_TIMER_EDIT";
+        editButton.setAttribute("aria-label", "Edit remaining time");
+        readout.appendChild(editButton);
+      }
       readout.appendChild(el("span", "timer-sub", "/ " + formatMs(timer.allocatedMs)));
+      readout.appendChild(el("span", "timer-state", timerStateLabel(timer)));
       els.timerbar.appendChild(readout);
 
       var controls = el("div", "timer-controls", null);
@@ -1120,17 +1785,40 @@
       var sub = readout.querySelector(".timer-sub");
       if (main) main.textContent = formatMs(remainingMs(timer));
       if (sub) sub.textContent = "/ " + formatMs(timer.allocatedMs);
+      var stateLabel = readout.querySelector(".timer-state");
+      if (stateLabel) stateLabel.textContent = timerStateLabel(timer);
     }
 
     // ===== INPUT AND EVENTS =====
-    function loadFromTextarea() {
+    function loadAgendaText(markdown, options) {
+      var opts = options || {};
       try {
-        var agenda = parseAgenda(els.markdownInput.value);
-        dispatch({ type: "LOAD_AGENDA", agenda: agenda });
+        var agenda = parseAgenda(markdown);
+        dispatch({
+          type: "LOAD_AGENDA",
+          agenda: agenda,
+          rawMarkdown: agenda.rawMarkdown,
+          cursor: opts.cursor || { slideIndex: 0, subIndex: 0 },
+          timers: opts.timers || null,
+          fileError: opts.fileError || "",
+          restored: !!opts.restored
+        });
+        els.markdownInput.value = agenda.rawMarkdown;
+        return agenda;
       } catch (error) {
         state.errors = [makeError(error.message)];
         renderStatus(state);
+        return null;
       }
+    }
+
+    function loadFromTextarea() {
+      var text = els.markdownInput.value;
+      if (state.agenda) {
+        dispatch({ type: "SET_PENDING_LOAD", pendingLoad: { text: text, name: "pasted agenda" } });
+        return;
+      }
+      loadAgendaText(text);
     }
 
     function isEditingTarget(event) {
@@ -1142,11 +1830,109 @@
       );
     }
 
+    function appendAgendaMarkdown(existingMarkdown, incomingAgenda) {
+      var nextNumber = state.agenda ? state.agenda.items.length + 1 : 1;
+      var rows = incomingAgenda.items.map(function (item, idx) {
+        return (nextNumber + idx) + ". " + item.sourceText.replace(/^\d+[.)]\s*/, "");
+      });
+      if (!rows.length) return existingMarkdown;
+      return normalizeAgendaText(existingMarkdown) + "\n" + rows.join("\n");
+    }
+
+    function applyPendingLoad(mode) {
+      if (!state.pendingLoad) return;
+      var pending = state.pendingLoad;
+      if (mode === "replace") {
+        loadAgendaText(pending.text);
+        return;
+      }
+      try {
+        var incoming = parseAgenda(pending.text);
+        var combined = appendAgendaMarkdown(state.rawMarkdown || els.markdownInput.value, incoming);
+        loadAgendaText(combined);
+      } catch (error) {
+        setAppError(error.message);
+      }
+    }
+
+    function loadFile(file) {
+      if (!file) return;
+      if (!FILE_EXTENSIONS.test(file.name)) {
+        setAppError("Only .md, .markdown, or .txt files are supported.");
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var text = String(reader.result || "");
+        if (state.agenda) {
+          dispatch({ type: "SET_PENDING_LOAD", pendingLoad: { text: text, name: file.name } });
+        } else {
+          loadAgendaText(text);
+        }
+      };
+      reader.onerror = function () {
+        setAppError("Could not read " + file.name + ".");
+      };
+      reader.readAsText(file);
+    }
+
+    function jumpToCursor(cursor, reset) {
+      dispatch({
+        type: "JUMP_TO",
+        slideIndex: cursor.slideIndex,
+        subIndex: cursor.subIndex,
+        reset: !!reset
+      });
+    }
+
+    function handleKeyboard(event) {
+      if (isEditingTarget(event)) return;
+      if (event.key === " ") {
+        event.preventDefault();
+        dispatch({ type: "TOGGLE_PAUSE" });
+      }
+      if (event.key === "r" || event.key === "R") {
+        event.preventDefault();
+        dispatch({ type: "RESET_TIMER" });
+      }
+      if (event.key === "+" || event.key === "=") {
+        event.preventDefault();
+        dispatch({ type: "ADJUST_TIMER", deltaMs: 60000 });
+      }
+      if (event.key === "-" || event.key === "_") {
+        event.preventDefault();
+        dispatch({ type: "ADJUST_TIMER", deltaMs: -60000 });
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        dispatch({ type: "NAVIGATE", direction: "next", skipPeople: event.shiftKey });
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        dispatch({ type: "NAVIGATE", direction: "previous" });
+      }
+      if (/^[1-9]$/.test(event.key) && state.agenda) {
+        var number = Number(event.key);
+        if (number <= state.agenda.items.length) {
+          event.preventDefault();
+          jumpToCursor({ slideIndex: number, subIndex: 0 }, false);
+        }
+      }
+    }
+
     function bindEvents() {
       els.loadButton.addEventListener("click", loadFromTextarea);
+      els.fileButton.addEventListener("click", function () {
+        els.fileInput.click();
+      });
+      els.fileInput.addEventListener("change", function () {
+        loadFile(els.fileInput.files[0]);
+        els.fileInput.value = "";
+      });
       els.sampleButton.addEventListener("click", function () {
         els.markdownInput.value = SAMPLE_AGENDA;
-        loadFromTextarea();
+        if (state.agenda) dispatch({ type: "SET_PENDING_LOAD", pendingLoad: { text: SAMPLE_AGENDA, name: "sample agenda" } });
+        else loadAgendaText(SAMPLE_AGENDA);
       });
       els.agendaList.addEventListener("click", function (event) {
         var button = event.target.closest("button[data-slide]");
@@ -1154,7 +1940,8 @@
         dispatch({
           type: "JUMP_TO",
           slideIndex: Number(button.dataset.slide),
-          subIndex: Number(button.dataset.sub || 0)
+          subIndex: Number(button.dataset.sub || 0),
+          reset: true
         });
       });
       els.timerbar.addEventListener("click", function (event) {
@@ -1164,24 +1951,63 @@
         if (button.dataset.deltaMs) action.deltaMs = Number(button.dataset.deltaMs);
         dispatch(action);
       });
-      window.addEventListener("keydown", function (event) {
-        if (isEditingTarget(event)) return;
-        if (event.key === " ") {
+      els.timerbar.addEventListener("keydown", function (event) {
+        if (!event.target.classList.contains("timer-edit-input")) return;
+        if (event.key === "Enter") {
           event.preventDefault();
-          dispatch({ type: "TOGGLE_PAUSE" });
+          dispatch({ type: "COMMIT_TIMER_EDIT", value: event.target.value });
         }
-        if (event.key === "r" || event.key === "R") {
+        if (event.key === "Escape") {
           event.preventDefault();
-          dispatch({ type: "RESET_TIMER" });
+          dispatch({ type: "CANCEL_TIMER_EDIT" });
         }
-        if (event.key === "+" || event.key === "=") {
+      });
+      els.timerbar.addEventListener("focusout", function (event) {
+        if (event.target.classList.contains("timer-edit-input") && state.editingTimer) {
+          dispatch({ type: "COMMIT_TIMER_EDIT", value: event.target.value });
+        }
+      });
+      els.themeButton.addEventListener("click", function () {
+        dispatch({ type: "TOGGLE_THEME" });
+      });
+      els.soundButton.addEventListener("click", function () {
+        dispatch({ type: "TOGGLE_SOUND" });
+      });
+      els.replaceAgendaButton.addEventListener("click", function () {
+        applyPendingLoad("replace");
+      });
+      els.addItemsButton.addEventListener("click", function () {
+        applyPendingLoad("add");
+      });
+      els.cancelPendingLoadButton.addEventListener("click", function () {
+        dispatch({ type: "CLEAR_PENDING_LOAD" });
+      });
+      ["dragenter", "dragover"].forEach(function (type) {
+        window.addEventListener(type, function (event) {
           event.preventDefault();
-          dispatch({ type: "ADJUST_TIMER", deltaMs: 60000 });
-        }
-        if (event.key === "-" || event.key === "_") {
+          els.appShell.classList.add("is-dragover");
+        });
+      });
+      ["dragleave", "drop"].forEach(function (type) {
+        window.addEventListener(type, function (event) {
           event.preventDefault();
-          dispatch({ type: "ADJUST_TIMER", deltaMs: -60000 });
-        }
+          els.appShell.classList.remove("is-dragover");
+        });
+      });
+      window.addEventListener("drop", function (event) {
+        var file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+        loadFile(file);
+      });
+      window.addEventListener("keydown", handleKeyboard);
+      window.addEventListener("beforeunload", function (event) {
+        forceSave();
+        if (!anyTimerRunning()) return;
+        event.preventDefault();
+        event.returnValue = "";
+      });
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") forceSave();
+        if (document.visibilityState === "visible") syncWakeLock();
       });
     }
 
@@ -1280,16 +2106,29 @@
     // ===== BOOT =====
     function boot() {
       assertMarked();
+      els.appShell = document.getElementById("appShell");
       els.markdownInput = document.getElementById("markdownInput");
       els.loadButton = document.getElementById("loadButton");
+      els.fileButton = document.getElementById("fileButton");
+      els.fileInput = document.getElementById("fileInput");
       els.sampleButton = document.getElementById("sampleButton");
       els.parseStatus = document.getElementById("parseStatus");
+      els.storageBanner = document.getElementById("storageBanner");
+      els.errorPanel = document.getElementById("errorPanel");
       els.agendaList = document.getElementById("agendaList");
       els.stage = document.getElementById("stage");
       els.timerbar = document.getElementById("timerbar");
-      els.markdownInput.value = SAMPLE_AGENDA;
+      els.themeButton = document.getElementById("themeButton");
+      els.soundButton = document.getElementById("soundButton");
+      els.loadModal = document.getElementById("loadModal");
+      els.loadModalBody = document.getElementById("loadModalBody");
+      els.replaceAgendaButton = document.getElementById("replaceAgendaButton");
+      els.addItemsButton = document.getElementById("addItemsButton");
+      els.cancelPendingLoadButton = document.getElementById("cancelPendingLoadButton");
       bindEvents();
       subscribe(render);
+      els.markdownInput.value = SAMPLE_AGENDA;
+      restoreFromStorage();
       render(state, { type: "BOOT" });
       rafId = window.requestAnimationFrame(tick);
     }
@@ -1298,8 +2137,10 @@
     window.normalizeAgendaText = normalizeAgendaText;
     window.runParserSmokeTests = runParserSmokeTests;
     window.meetingManagerState = state;
+    window.loadAgendaText = loadAgendaText;
     window.addEventListener("DOMContentLoaded", boot);
     window.addEventListener("pagehide", function () {
+      forceSave();
       if (rafId) window.cancelAnimationFrame(rafId);
     });
   }());
