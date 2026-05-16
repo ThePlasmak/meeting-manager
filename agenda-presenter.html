@@ -3589,7 +3589,9 @@
 
         function getCurrentItem(s) {
           if (!s.agenda || s.cursor.slideIndex === 0) return null;
-          if (isCompleteSlide(s)) return null;
+          if (isCompleteSlide(s)) {
+            return s.agenda.items[s.agenda.items.length - 1] || null;
+          }
           return s.agenda.items[s.cursor.slideIndex - 1] || null;
         }
 
@@ -3600,12 +3602,12 @@
         function getCurrentTimerKey(s) {
           var item = getCurrentItem(s);
           if (!item) return null;
-          if (hasSubStates(item))
-            return (
-              item.agendaIndex +
-              "." +
-              Math.min(s.cursor.subIndex, item.subStates.length - 1)
-            );
+          if (hasSubStates(item)) {
+            var subIdx = isCompleteSlide(s)
+              ? item.subStates.length - 1
+              : Math.min(s.cursor.subIndex, item.subStates.length - 1);
+            return item.agendaIndex + "." + subIdx;
+          }
           return String(item.agendaIndex);
         }
 
