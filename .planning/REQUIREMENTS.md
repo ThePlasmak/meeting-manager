@@ -171,9 +171,99 @@ These will not be built for this product, with reasoning.
 
 ## Traceability
 
-This section is filled by the roadmapper after ROADMAP.md is created. Each REQ-ID will be mapped to exactly one phase.
+Every v1 requirement is mapped to exactly one phase. Coverage: 78 / 78 (100%).
 
-(Pending roadmap creation)
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| PARSE-01 | Phase 1 | Pending |
+| PARSE-02 | Phase 1 | Pending |
+| PARSE-03 | Phase 1 | Pending |
+| PARSE-04 | Phase 1 | Pending |
+| PARSE-05 | Phase 1 | Pending |
+| PARSE-06 | Phase 1 | Pending |
+| PARSE-07 | Phase 1 | Pending |
+| PARSE-08 | Phase 1 | Pending |
+| PARSE-09 | Phase 1 | Pending |
+| PARSE-10 | Phase 1 | Pending |
+| LOAD-01 | Phase 3 | Pending |
+| LOAD-02 | Phase 2 | Pending |
+| LOAD-03 | Phase 1 | Pending |
+| LOAD-04 | Phase 2 | Pending |
+| LOAD-05 | Phase 2 | Pending |
+| SLIDE-01 | Phase 1 | Pending |
+| SLIDE-02 | Phase 1 | Pending |
+| SLIDE-03 | Phase 1 | Pending |
+| SLIDE-04 | Phase 1 | Pending |
+| SLIDE-05 | Phase 1 | Pending |
+| SIDE-01 | Phase 1 | Pending |
+| SIDE-02 | Phase 1 | Pending |
+| SIDE-03 | Phase 1 | Pending |
+| SIDE-04 | Phase 1 | Pending |
+| SIDE-05 | Phase 1 | Pending |
+| SIDE-06 | Phase 1 | Pending |
+| TIMER-01 | Phase 1 | Pending |
+| TIMER-02 | Phase 1 | Pending |
+| TIMER-03 | Phase 1 | Pending |
+| TIMER-04 | Phase 1 | Pending |
+| TIMER-05 | Phase 1 | Pending |
+| TIMER-06 | Phase 1 | Pending |
+| TIMER-07 | Phase 3 | Pending |
+| TIMER-08 | Phase 1 | Pending |
+| TIMER-09 | Phase 1 | Pending |
+| TIMER-10 | Phase 1 | Pending |
+| NAV-01 | Phase 2 | Pending |
+| NAV-02 | Phase 2 | Pending |
+| NAV-03 | Phase 2 | Pending |
+| NAV-04 | Phase 2 | Pending |
+| NAV-05 | Phase 2 | Pending |
+| NAV-06 | Phase 2 | Pending |
+| OVER-01 | Phase 1 | Pending |
+| OVER-02 | Phase 1 | Pending |
+| OVER-03 | Phase 1 | Pending |
+| OVER-04 | Phase 1 | Pending |
+| THEME-01 | Phase 3 | Pending |
+| THEME-02 | Phase 3 | Pending |
+| THEME-03 | Phase 3 | Pending |
+| THEME-04 | Phase 3 | Pending |
+| PERSIST-01 | Phase 2 | Pending |
+| PERSIST-02 | Phase 2 | Pending |
+| PERSIST-03 | Phase 2 | Pending |
+| PERSIST-04 | Phase 2 | Pending |
+| PERSIST-05 | Phase 2 | Pending |
+| PERSIST-06 | Phase 2 | Pending |
+| GUARD-01 | Phase 2 | Pending |
+| GUARD-02 | Phase 2 | Pending |
+| WAKE-01 | Phase 3 | Pending |
+| WAKE-02 | Phase 3 | Pending |
+| WAKE-03 | Phase 3 | Pending |
+| SOUND-01 | Phase 3 | Pending |
+| SOUND-02 | Phase 3 | Pending |
+| SOUND-03 | Phase 3 | Pending |
+| ERR-01 | Phase 3 | Pending |
+| ERR-02 | Phase 3 | Pending |
+| ERR-03 | Phase 3 | Pending |
+| BRAND-01 | Phase 4 | Pending |
+| BRAND-02 | Phase 4 | Pending |
+| BRAND-03 | Phase 4 | Pending |
+| BRAND-04 | Phase 4 | Pending |
+| BRAND-05 | Phase 4 | Pending |
+| DIST-01 | Phase 1 | Pending |
+| DIST-02 | Phase 1 | Pending |
+| DIST-03 | Phase 1 | Pending |
+| DIST-04 | Phase 1 | Pending |
+| DIST-05 | Phase 1 | Pending |
+| DIST-06 | Phase 1 | Pending |
+
+### Phase-by-Phase Summary
+
+| Phase | Requirements | Count |
+|-------|--------------|-------|
+| **Phase 1: MVP Vertical Slice** | PARSE-01..10, LOAD-03, SLIDE-01..05, SIDE-01..06, TIMER-01..06, TIMER-08..10, OVER-01..04, DIST-01..06 | 41 |
+| **Phase 2: Persistence + Drag-Drop + Keyboard + Nav** | LOAD-02, LOAD-04, LOAD-05, NAV-01..06, PERSIST-01..06, GUARD-01..02 | 17 |
+| **Phase 3: Polish Layer** | LOAD-01, TIMER-07, THEME-01..04, WAKE-01..03, SOUND-01..03, ERR-01..03 | 15 |
+| **Phase 4: Discord-Readiness Visual Audit** | BRAND-01..05 | 5 |
+| **TOTAL** | | **78** |
 
 ---
-*Last updated: 2026-05-16 after initialization*
+
+*Last updated: 2026-05-16 after roadmap creation (traceability filled in)*
