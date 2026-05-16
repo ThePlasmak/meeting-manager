@@ -4519,16 +4519,14 @@
             button.appendChild(
               el("span", "sidebar-index", String(item.agendaIndex)),
             );
-            var textWrap = el("span", "", null);
-            textWrap.appendChild(el("span", "sidebar-title", item.title));
-            textWrap.appendChild(
+            button.appendChild(el("span", "sidebar-title", item.title));
+            button.appendChild(
               el(
                 "span",
                 "sidebar-meta",
                 item.attributions.join(", ") || "No attribution",
               ),
             );
-            button.appendChild(textWrap);
             els.agendaList.appendChild(button);
 
             if (hasSubStates(item) && row.expanded) {
@@ -4608,10 +4606,10 @@
           }
 
           if (isCompleteSlide(s)) {
-            els.stage.appendChild(el("p", "eyebrow", "Done"));
-            els.stage.appendChild(el("h1", "", "Meeting complete"));
+            els.stage.appendChild(el("p", "eyebrow", "Done!"));
+            els.stage.appendChild(el("h1", "", "Meeting complete!"));
             els.stage.appendChild(
-              el("p", "subtitle", "All agenda items have been reached."),
+              el("p", "subtitle", "All agenda items have been completed. Yay!"),
             );
             return;
           }
