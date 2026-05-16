@@ -135,6 +135,7 @@ None.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260516-001 | Sync AGENTS.md and CLAUDE.md via hardlink and concise shared guide | 2026-05-16 | 8949fb0 | [260516-001-agents-claude-sync](./quick/260516-001-agents-claude-sync/) |
+| 260516-002 | Add spoken time-left button to timer controls | 2026-05-16 | b8ea193 | [260516-read-time-left-button](./quick/260516-read-time-left-button/) |
 
 ---
 
