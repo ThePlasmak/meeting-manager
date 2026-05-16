@@ -801,6 +801,21 @@
       return (negative ? "-" : "") + String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
     }
 
+    function plural(value, singular, pluralWord) {
+      return value + " " + (value === 1 ? singular : pluralWord);
+    }
+
+    function formatSpokenTimeLeft(ms) {
+      var negative = ms < 0;
+      var totalSeconds = Math.floor((Math.abs(ms) + 500) / 1000);
+      var minutes = Math.floor(totalSeconds / 60);
+      var seconds = totalSeconds % 60;
+      var parts = [];
+      if (minutes) parts.push(plural(minutes, "minute", "minutes"));
+      parts.push(plural(seconds, "second", "seconds"));
+      return parts.join(" ") + (negative ? " overtime" : " left");
+    }
+
     function formatEditMs(ms) {
       var totalSeconds = Math.max(0, Math.round(ms / 1000));
       return String(Math.floor(totalSeconds / 60)) + ":" + String(totalSeconds % 60).padStart(2, "0");
@@ -865,6 +880,25 @@
       state.fileError = message || "";
       renderStatus(state);
       scheduleSave();
+    }
+
+    function speakCurrentTimeLeft() {
+      var timer = getCurrentTimer(state);
+      if (!timer) {
+        setAppError("No timer on this slide.");
+        return;
+      }
+      var phrase = formatSpokenTimeLeft(remainingMs(timer));
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+        setAppError("Spoken time is not available in this browser.");
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(phrase));
+      } catch (error) {
+        setAppError("Spoken time is not available in this browser.");
+      }
     }
 
     // ===== PARSER =====
@@ -1766,6 +1800,7 @@
         { label: timer.paused ? "Play" : "Pause", action: "TOGGLE_PAUSE" },
         { label: "-1", action: "ADJUST_TIMER", deltaMs: -60000 },
         { label: "+1", action: "ADJUST_TIMER", deltaMs: 60000 },
+        { label: "Read time", action: "READ_TIME" },
         { label: "Reset", action: "RESET_TIMER" }
       ].forEach(function (spec) {
         var button = el("button", "", spec.label);
@@ -1952,6 +1987,10 @@
       els.timerbar.addEventListener("click", function (event) {
         var button = event.target.closest("button[data-action]");
         if (!button) return;
+        if (button.dataset.action === "READ_TIME") {
+          speakCurrentTimeLeft();
+          return;
+        }
         var action = { type: button.dataset.action };
         if (button.dataset.deltaMs) action.deltaMs = Number(button.dataset.deltaMs);
         dispatch(action);
