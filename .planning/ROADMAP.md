@@ -42,7 +42,7 @@
 - Parser uses `marked` v18 UMD `lexer()` on the token stream (PARSE-09). Build the 10+-variant fixture file on day one (PARSE-10).
 - Title slide vs agenda item numbering: keep two index spaces — `slide[]` (includes title) vs `agendaItem[]` (1..N, excludes title). Sidebar numbers agenda items. (Pitfall #19.)
 - Composite timer key `"3"` for plain items, `"3.0"/"3.1"/"3.2"` for sub-states. Flat `state.timers` dict.
-- No persistence yet. No keyboard yet. No drag-drop yet. No theme toggle yet. No click-to-edit yet.
+- No persistence yet. No full navigation keyboard yet (only minimal timer keys needed for TIMER-05/06/08). No drag-drop yet. No theme toggle yet. No click-to-edit yet.
 
 **Success Criteria** (what must be TRUE when this phase is done — Sarah can verify by opening the file):
   1. Pasting the example agenda from README.md and clicking Load renders 1 title slide (Meeting Master + Notetaker) + N agenda slides with correct titles, attribution subtitles, and deadline badges; sidebar shows the numbered agenda with "max per person" items expandable to 1a/1b/1c sub-items.
@@ -52,7 +52,11 @@
   5. Backgrounding the tab for 5 minutes and returning shows the timer snapped to the truth (drift ≤50ms over 10 minutes) — proves rAF + `performance.now()` derivation, not counter decrement.
   6. The file opens by double-clicking `agenda-presenter.html` from disk; no build step, no external CDN at runtime, no `fetch()`, no `<script type="module">`.
 
-**Plans:** TBD
+**Plans:**
+- [ ] 01-01: Agenda parser fixture and IR
+- [ ] 01-02: Static presenter shell and sidebar rendering
+- [ ] 01-03: Timer engine, controls, and overrun visual
+- [ ] 01-04: File distribution and Phase 1 smoke verification
 **UI hint**: yes
 
 ---
@@ -164,7 +168,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. MVP Vertical Slice — Paste, Render, Tick, Click | 0/? | Not started | — |
+| 1. MVP Vertical Slice — Paste, Render, Tick, Click | 0/4 | Planned | — |
 | 2. Persistence + Drag-Drop + Keyboard + Nav Truth Table | 0/? | Not started | — |
 | 3. Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | 0/? | Not started | — |
 | 4. Discord-Readiness Visual Audit | 0/? | Not started | — |
@@ -208,4 +212,4 @@
 
 ---
 
-*Last updated: 2026-05-16 (roadmap creation)*
+*Last updated: 2026-05-16 (Phase 1 planned)*
