@@ -1,6 +1,6 @@
 # STATE — Meeting Manager
 
-**Last updated:** 2026-05-16 (initial state, post-roadmap)
+**Last updated:** 2026-05-16 (quick task: AGENTS/CLAUDE hardlink sync)
 **Mode:** MVP
 **Granularity:** coarse (4 phases)
 
@@ -20,7 +20,7 @@
 
 **Phase:** 1 — MVP Vertical Slice — Paste, Render, Tick, Click
 **Plan:** (not yet planned — run `/gsd:plan-phase 1`)
-**Status:** Roadmap created, awaiting Phase 1 planning
+**Status:** Roadmap created; AGENTS/CLAUDE guide sync fixed; awaiting Phase 1 planning
 **Progress:** ░░░░░░░░░░ 0/4 phases complete (0%)
 
 ```
@@ -130,9 +130,17 @@ From `.planning/research/SUMMARY.md` Phase 3 section:
 
 None.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260516-001 | Sync AGENTS.md and CLAUDE.md via hardlink and concise shared guide | 2026-05-16 | docs-only | [260516-001-agents-claude-sync](./quick/260516-001-agents-claude-sync/) |
+
 ---
 
 ## Session Continuity
+
+**Last session:** 2026-05-16 — Completed quick task 260516-001: AGENTS/CLAUDE hardlink sync.
 
 **Resume hint:** Phase 1 is ready to plan. Run `/gsd:plan-phase 1` to decompose Phase 1 (MVP Vertical Slice) into executable plans.
 
