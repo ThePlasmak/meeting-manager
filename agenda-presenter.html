@@ -51,6 +51,7 @@
         --timer-main-size: clamp(96px, 8vw, 128px);
         --timer-height: 136px;
         --sidebar-width: clamp(260px, 24vw, 360px);
+        --sidebar-collapsed-width: 0px;
         --radius: 10px;
         --radius-sm: 8px;
         --body-weight: 500;
@@ -160,6 +161,15 @@
         grid-template-rows: minmax(0, 1fr) var(--timer-height);
         width: 100vw;
         height: 100vh;
+        transition: grid-template-columns 220ms ease;
+      }
+
+      .app-shell.is-sidebar-collapsed {
+        grid-template-columns: var(--sidebar-collapsed-width) minmax(0, 1fr);
+      }
+
+      .app-shell.is-sidebar-collapsed .timerbar {
+        grid-column: 1 / 3;
       }
 
       .sidebar {
@@ -170,6 +180,12 @@
         display: grid;
         grid-template-rows: auto minmax(0, 1fr);
         overflow: hidden;
+        transition: opacity 180ms ease;
+      }
+
+      .app-shell.is-sidebar-collapsed .sidebar {
+        opacity: 0;
+        pointer-events: none;
       }
 
       .sidebar-section {
@@ -475,6 +491,41 @@
 
       .tool-toggle:hover:not(:disabled) {
         color: var(--text);
+      }
+
+      .sidebar-handle {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        z-index: 4;
+        min-height: 34px;
+        padding: 0 10px;
+        background: var(--panel);
+        color: var(--muted);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: var(--shadow-sm);
+        transition:
+          background-color 120ms ease,
+          color 120ms ease;
+      }
+
+      .sidebar-handle:hover:not(:disabled) {
+        background: var(--hover);
+        color: var(--text);
+      }
+
+      .sidebar-handle .handle-icon {
+        display: inline-block;
+        font-weight: 900;
+        font-size: 14px;
+        line-height: 1;
       }
 
       .stage {
@@ -810,6 +861,17 @@
       </aside>
 
       <main class="stage-wrap">
+        <button
+          id="sidebarToggleButton"
+          class="sidebar-handle"
+          type="button"
+          aria-controls="sidebar"
+          aria-expanded="true"
+          aria-label="Toggle sidebar"
+        >
+          <span class="handle-icon" aria-hidden="true">&#10094;</span>
+          <span class="handle-label">Sidebar</span>
+        </button>
         <div class="app-tools" aria-label="Preferences">
           <button id="themeButton" class="tool-toggle" type="button">
             Dark
@@ -3249,6 +3311,7 @@
           editingTimer: null,
           zeroNotified: {},
           lastAction: null,
+          sidebarCollapsed: false,
           loadSectionCollapsed: false,
           agendaSectionCollapsed: false,
         };
@@ -3955,6 +4018,9 @@
           if (action.type === "TOGGLE_SOUND") {
             s.soundEnabled = !s.soundEnabled;
           }
+          if (action.type === "TOGGLE_SIDEBAR") {
+            s.sidebarCollapsed = !s.sidebarCollapsed;
+          }
           if (action.type === "TOGGLE_LOAD_SECTION") {
             s.loadSectionCollapsed = !s.loadSectionCollapsed;
           }
@@ -4075,6 +4141,7 @@
             timers: serializeTimers(),
             theme: state.theme,
             soundEnabled: !!state.soundEnabled,
+            sidebarCollapsed: !!state.sidebarCollapsed,
             loadSectionCollapsed: !!state.loadSectionCollapsed,
             agendaSectionCollapsed: !!state.agendaSectionCollapsed,
           };
@@ -4121,6 +4188,7 @@
             if (!saved || !saved.rawMarkdown) return false;
             state.theme = saved.theme === "dark" ? "dark" : "light";
             state.soundEnabled = !!saved.soundEnabled;
+            state.sidebarCollapsed = !!saved.sidebarCollapsed;
             state.loadSectionCollapsed = !!saved.loadSectionCollapsed;
             state.agendaSectionCollapsed = !!saved.agendaSectionCollapsed;
             document.documentElement.dataset.theme = state.theme;
@@ -4377,6 +4445,19 @@
           els.soundButton.textContent = s.soundEnabled
             ? "Chime On"
             : "Chime Off";
+          els.appShell.classList.toggle(
+            "is-sidebar-collapsed",
+            !!s.sidebarCollapsed,
+          );
+          els.sidebarToggleButton.setAttribute(
+            "aria-expanded",
+            s.sidebarCollapsed ? "false" : "true",
+          );
+          var handleIcon =
+            els.sidebarToggleButton.querySelector(".handle-icon");
+          if (handleIcon) {
+            handleIcon.innerHTML = s.sidebarCollapsed ? "&#10095;" : "&#10094;";
+          }
           els.loadSection.classList.toggle(
             "is-collapsed",
             !!s.loadSectionCollapsed,
@@ -4905,6 +4986,9 @@
           els.themeButton.addEventListener("click", function () {
             dispatch({ type: "TOGGLE_THEME" });
           });
+          els.sidebarToggleButton.addEventListener("click", function () {
+            dispatch({ type: "TOGGLE_SIDEBAR" });
+          });
           els.loadToggle.addEventListener("click", function () {
             dispatch({ type: "TOGGLE_LOAD_SECTION" });
           });
@@ -5105,6 +5189,8 @@
           els.timerbar = document.getElementById("timerbar");
           els.themeButton = document.getElementById("themeButton");
           els.soundButton = document.getElementById("soundButton");
+          els.sidebarToggleButton =
+            document.getElementById("sidebarToggleButton");
           els.loadSection = document.getElementById("loadSection");
           els.loadToggle = document.getElementById("loadToggle");
           els.agendaSection = document.getElementById("agendaSection");
