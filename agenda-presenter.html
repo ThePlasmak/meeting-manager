@@ -172,17 +172,78 @@
         overflow: hidden;
       }
 
-      .load-panel {
-        padding: 16px;
-        border-bottom: 1px solid var(--line);
+      .sidebar-section {
         display: grid;
-        gap: 10px;
+        grid-template-rows: auto minmax(0, 1fr);
+        min-height: 0;
+        border-bottom: 1px solid var(--line);
       }
 
-      .load-panel label {
-        font-size: 13px;
+      .sidebar-section.is-flex {
+        min-height: 0;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        text-align: left;
+        border: 0;
+        border-radius: 0;
+        background: var(--panel);
         color: var(--muted);
-        font-weight: 650;
+        padding: 11px 14px;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        min-height: 42px;
+        cursor: pointer;
+        transition: background-color 120ms ease;
+      }
+
+      .section-header:hover:not(:disabled) {
+        background: var(--hover);
+        color: var(--text);
+        border-color: transparent;
+      }
+
+      .section-caret {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid currentColor;
+        transition: transform 160ms ease;
+        flex-shrink: 0;
+        opacity: 0.7;
+      }
+
+      .sidebar-section.is-collapsed .section-caret {
+        transform: rotate(-90deg);
+      }
+
+      .sidebar-section.is-collapsed .section-body,
+      .sidebar-section.is-collapsed .agenda-list {
+        display: none;
+      }
+
+      .sidebar:has(#agendaSection.is-collapsed) {
+        grid-template-rows: auto auto;
+        align-content: start;
+      }
+
+      .section-body {
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .load-panel {
+        padding: 14px;
+        display: grid;
+        gap: 10px;
       }
 
       .load-panel textarea {
@@ -690,33 +751,62 @@
   </head>
   <body>
     <div id="appShell" class="app-shell">
-      <aside class="sidebar" aria-label="Agenda">
-        <section class="load-panel">
-          <label for="markdownInput">Agenda Markdown</label>
-          <textarea id="markdownInput" spellcheck="false"></textarea>
-          <div class="load-actions">
-            <button id="loadButton" class="primary" type="button">Load</button>
-            <button id="fileButton" type="button">Load .md</button>
-            <button id="sampleButton" type="button">Sample</button>
+      <aside class="sidebar" id="sidebar" aria-label="Agenda">
+        <section class="sidebar-section" id="loadSection">
+          <button
+            id="loadToggle"
+            class="section-header"
+            type="button"
+            aria-expanded="true"
+            aria-controls="loadPanelBody"
+          >
+            <span class="section-caret" aria-hidden="true"></span>
+            <span class="section-title">Agenda Markdown</span>
+          </button>
+          <div class="section-body load-panel" id="loadPanelBody">
+            <textarea
+              id="markdownInput"
+              spellcheck="false"
+              aria-label="Agenda Markdown"
+            ></textarea>
+            <div class="load-actions">
+              <button id="loadButton" class="primary" type="button">
+                Load
+              </button>
+              <button id="fileButton" type="button">Load .md</button>
+              <button id="sampleButton" type="button">Sample</button>
+            </div>
+            <input
+              id="fileInput"
+              class="hidden-file"
+              type="file"
+              accept=".md,.markdown,.txt,text/markdown,text/plain"
+            />
+            <div id="dropHint" class="drop-hint">
+              Drop a .md, .markdown, or .txt agenda anywhere.
+            </div>
+            <div id="storageBanner" class="storage-banner" role="status"></div>
+            <div id="errorPanel" class="error-panel" role="alert"></div>
+            <div id="parseStatus" class="parse-status" aria-live="polite"></div>
           </div>
-          <input
-            id="fileInput"
-            class="hidden-file"
-            type="file"
-            accept=".md,.markdown,.txt,text/markdown,text/plain"
-          />
-          <div id="dropHint" class="drop-hint">
-            Drop a .md, .markdown, or .txt agenda anywhere.
-          </div>
-          <div id="storageBanner" class="storage-banner" role="status"></div>
-          <div id="errorPanel" class="error-panel" role="alert"></div>
-          <div id="parseStatus" class="parse-status" aria-live="polite"></div>
         </section>
-        <nav
-          id="agendaList"
-          class="agenda-list"
-          aria-label="Agenda items"
-        ></nav>
+        <section class="sidebar-section is-flex" id="agendaSection">
+          <button
+            id="agendaToggle"
+            class="section-header"
+            type="button"
+            aria-expanded="true"
+            aria-controls="agendaList"
+          >
+            <span class="section-caret" aria-hidden="true"></span>
+            <span class="section-title">Agenda</span>
+          </button>
+          <nav
+            id="agendaList"
+            class="agenda-list"
+            aria-label="Agenda items"
+          ></nav>
+        </section>
       </aside>
 
       <main class="stage-wrap">
@@ -3159,6 +3249,8 @@
           editingTimer: null,
           zeroNotified: {},
           lastAction: null,
+          loadSectionCollapsed: false,
+          agendaSectionCollapsed: false,
         };
 
         var subscribers = new Set();
@@ -3863,6 +3955,12 @@
           if (action.type === "TOGGLE_SOUND") {
             s.soundEnabled = !s.soundEnabled;
           }
+          if (action.type === "TOGGLE_LOAD_SECTION") {
+            s.loadSectionCollapsed = !s.loadSectionCollapsed;
+          }
+          if (action.type === "TOGGLE_AGENDA_SECTION") {
+            s.agendaSectionCollapsed = !s.agendaSectionCollapsed;
+          }
           if (action.type === "START_TIMER_EDIT") {
             var editTimer = getCurrentTimer(s);
             var editKey = getCurrentTimerKey(s);
@@ -3977,6 +4075,8 @@
             timers: serializeTimers(),
             theme: state.theme,
             soundEnabled: !!state.soundEnabled,
+            loadSectionCollapsed: !!state.loadSectionCollapsed,
+            agendaSectionCollapsed: !!state.agendaSectionCollapsed,
           };
         }
 
@@ -4021,6 +4121,8 @@
             if (!saved || !saved.rawMarkdown) return false;
             state.theme = saved.theme === "dark" ? "dark" : "light";
             state.soundEnabled = !!saved.soundEnabled;
+            state.loadSectionCollapsed = !!saved.loadSectionCollapsed;
+            state.agendaSectionCollapsed = !!saved.agendaSectionCollapsed;
             document.documentElement.dataset.theme = state.theme;
             var agenda = parseAgenda(saved.rawMarkdown);
             var currentHash = hashText(saved.rawMarkdown);
@@ -4275,6 +4377,22 @@
           els.soundButton.textContent = s.soundEnabled
             ? "Chime On"
             : "Chime Off";
+          els.loadSection.classList.toggle(
+            "is-collapsed",
+            !!s.loadSectionCollapsed,
+          );
+          els.loadToggle.setAttribute(
+            "aria-expanded",
+            s.loadSectionCollapsed ? "false" : "true",
+          );
+          els.agendaSection.classList.toggle(
+            "is-collapsed",
+            !!s.agendaSectionCollapsed,
+          );
+          els.agendaToggle.setAttribute(
+            "aria-expanded",
+            s.agendaSectionCollapsed ? "false" : "true",
+          );
         }
 
         function renderStorageBanner() {
@@ -4787,6 +4905,12 @@
           els.themeButton.addEventListener("click", function () {
             dispatch({ type: "TOGGLE_THEME" });
           });
+          els.loadToggle.addEventListener("click", function () {
+            dispatch({ type: "TOGGLE_LOAD_SECTION" });
+          });
+          els.agendaToggle.addEventListener("click", function () {
+            dispatch({ type: "TOGGLE_AGENDA_SECTION" });
+          });
           els.soundButton.addEventListener("click", function () {
             dispatch({ type: "TOGGLE_SOUND" });
           });
@@ -4981,6 +5105,10 @@
           els.timerbar = document.getElementById("timerbar");
           els.themeButton = document.getElementById("themeButton");
           els.soundButton = document.getElementById("soundButton");
+          els.loadSection = document.getElementById("loadSection");
+          els.loadToggle = document.getElementById("loadToggle");
+          els.agendaSection = document.getElementById("agendaSection");
+          els.agendaToggle = document.getElementById("agendaToggle");
           els.loadModal = document.getElementById("loadModal");
           els.loadModalBody = document.getElementById("loadModalBody");
           els.replaceAgendaButton = document.getElementById(
