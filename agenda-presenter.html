@@ -58,16 +58,12 @@
         --stage-weight: 600;
         --title-weight: 820;
         font-family:
-          "Graphik Web",
-          "Graphik Web Regular",
-          "Graphik Web Medium",
-          "Graphik Web Semibold",
-          "Graphik",
+          "Apercu",
+          Roboto,
           system-ui,
           -apple-system,
           BlinkMacSystemFont,
           "Segoe UI",
-          Roboto,
           Arial,
           sans-serif;
       }
@@ -812,7 +808,7 @@
             aria-controls="loadPanelBody"
           >
             <span class="section-caret" aria-hidden="true"></span>
-            <span class="section-title">Agenda Markdown</span>
+            <span class="section-title">Markdown of Agenda</span>
           </button>
           <div class="section-body load-panel" id="loadPanelBody">
             <textarea
@@ -5187,8 +5183,9 @@
           els.timerbar = document.getElementById("timerbar");
           els.themeButton = document.getElementById("themeButton");
           els.soundButton = document.getElementById("soundButton");
-          els.sidebarToggleButton =
-            document.getElementById("sidebarToggleButton");
+          els.sidebarToggleButton = document.getElementById(
+            "sidebarToggleButton",
+          );
           els.loadSection = document.getElementById("loadSection");
           els.loadToggle = document.getElementById("loadToggle");
           els.agendaSection = document.getElementById("agendaSection");
