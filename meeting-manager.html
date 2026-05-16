@@ -39,6 +39,7 @@
         --accent-soft: #dbeafe;
         --good: #047857;
         --warn: #b45309;
+        --paused: #ea580c;
         --bad: #b91c1c;
         --bad-bg: #fff1f2;
         --stage-bg: #ffffff;
@@ -49,6 +50,7 @@
         --stage-min-font: 24px;
         --stage-title-size: clamp(72px, 7vw, 112px);
         --timer-main-size: clamp(96px, 8vw, 128px);
+        --timer-main-width: clamp(270px, 21vw, 360px);
         --timer-height: 136px;
         --sidebar-width: clamp(260px, 24vw, 360px);
         --sidebar-collapsed-width: 0px;
@@ -83,6 +85,7 @@
         --accent-soft: #1e3a5f;
         --good: #34d399;
         --warn: #fbbf24;
+        --paused: #fb923c;
         --bad: #f87171;
         --bad-bg: #3f1218;
         --stage-bg: #0f172a;
@@ -447,8 +450,51 @@
         min-width: 0;
       }
 
+      .sidebar-substate-indicator {
+        grid-column: 1;
+        grid-row: 2;
+        align-self: start;
+        justify-self: center;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-width: 26px;
+        height: 18px;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--panel-soft);
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 850;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .sidebar-substate-indicator::before {
+        content: "";
+        width: 0;
+        height: 0;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left: 5px solid currentColor;
+        opacity: 0.78;
+        transition: transform 120ms ease;
+      }
+
+      .sidebar-item.is-expanded .sidebar-substate-indicator {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+      }
+
+      .sidebar-item.is-expanded .sidebar-substate-indicator::before {
+        transform: rotate(90deg);
+      }
+
       .sidebar-meta {
         grid-column: 2;
+        grid-row: 2;
         color: var(--muted);
         font-size: 12px;
         overflow: hidden;
@@ -476,13 +522,22 @@
       }
 
       .tool-toggle {
+        width: 38px;
         min-height: 34px;
+        display: inline-grid;
+        place-items: center;
         background: var(--panel);
         color: var(--muted);
         font-weight: 700;
         font-size: 13px;
-        padding: 0 12px;
+        padding: 0;
         box-shadow: var(--shadow-sm);
+      }
+
+      .tool-toggle svg {
+        width: 18px;
+        height: 18px;
+        display: block;
       }
 
       .tool-toggle:hover:not(:disabled) {
@@ -659,9 +714,10 @@
         border-top: 1px solid var(--line);
         background: var(--panel);
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: auto auto;
         align-items: center;
-        gap: 18px;
+        justify-content: start;
+        gap: 14px;
         padding: 16px clamp(24px, 3vw, 42px);
         min-width: 0;
       }
@@ -679,21 +735,32 @@
         color: var(--warn);
       }
 
+      .timer-readout.is-paused {
+        color: var(--paused);
+      }
+
       .timer-readout.is-bad {
         color: var(--bad);
       }
 
-      .timer-main {
-        border: 0;
-        background: transparent;
-        padding: 0;
-        min-height: 0;
-        color: inherit;
+      .timer-main,
+      .timer-edit-input {
+        width: var(--timer-main-width);
         font-size: var(--timer-main-size);
         line-height: 0.9;
         font-weight: 850;
         font-variant-numeric: tabular-nums;
         letter-spacing: 0;
+        text-align: left;
+      }
+
+      .timer-main {
+        display: inline-block;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        min-height: 0;
+        color: inherit;
       }
 
       .timer-main:hover:not(:disabled) {
@@ -718,12 +785,17 @@
       }
 
       .timer-edit-input {
-        width: 190px;
-        min-height: 72px;
-        padding: 0 12px;
-        font-size: 48px;
-        font-weight: 850;
-        font-variant-numeric: tabular-nums;
+        height: 1em;
+        min-height: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+      }
+
+      .timer-edit-input:focus {
+        outline: 2px solid currentColor;
+        outline-offset: 6px;
       }
 
       .timer-controls {
@@ -737,6 +809,24 @@
       .timer-controls button {
         min-width: 54px;
         font-weight: 750;
+      }
+
+      .timer-control-icon {
+        width: 44px;
+        min-width: 44px;
+        padding: 0;
+        display: inline-grid;
+        place-items: center;
+      }
+
+      .timer-control-icon svg {
+        width: 21px;
+        height: 21px;
+        display: block;
+      }
+
+      .timer-adjust-button {
+        min-width: 76px;
       }
 
       .visually-hidden {
@@ -866,13 +956,26 @@
           aria-label="Toggle sidebar"
         >
           <span class="handle-icon" aria-hidden="true">&#10094;</span>
-          <span class="handle-label">Sidebar</span>
         </button>
         <div class="app-tools" aria-label="Preferences">
-          <button id="themeButton" class="tool-toggle" type="button">
+          <button
+            id="themeButton"
+            class="tool-toggle"
+            type="button"
+            aria-label="Switch to dark mode"
+            aria-pressed="false"
+            title="Switch to dark mode"
+          >
             Dark
           </button>
-          <button id="soundButton" class="tool-toggle" type="button">
+          <button
+            id="soundButton"
+            class="tool-toggle"
+            type="button"
+            aria-label="Turn chime on"
+            aria-pressed="false"
+            title="Turn chime on"
+          >
             Chime Off
           </button>
         </div>
@@ -3286,6 +3389,57 @@
         var STORAGE_KEY = "meeting-manager.v1.state";
         var SAVE_DELAY_MS = 500;
         var FILE_EXTENSIONS = /\.(md|markdown|txt)$/i;
+        var SVG_NS = "http://www.w3.org/2000/svg";
+        var ICON_SHAPES = {
+          sun: [
+            ["circle", { cx: "12", cy: "12", r: "4" }],
+            ["path", { d: "M12 2v2" }],
+            ["path", { d: "M12 20v2" }],
+            ["path", { d: "M4.93 4.93l1.41 1.41" }],
+            ["path", { d: "M17.66 17.66l1.41 1.41" }],
+            ["path", { d: "M2 12h2" }],
+            ["path", { d: "M20 12h2" }],
+            ["path", { d: "M6.34 17.66l-1.41 1.41" }],
+            ["path", { d: "M19.07 4.93l-1.41 1.41" }],
+          ],
+          moon: [["path", { d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" }]],
+          bell: [
+            ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0" }],
+            [
+              "path",
+              {
+                d: "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8a6 6 0 0 0-12 0c0 4.499-1.411 5.956-2.738 7.326",
+              },
+            ],
+          ],
+          "bell-off": [
+            ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0" }],
+            [
+              "path",
+              {
+                d: "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8a6 6 0 0 0-12 0c0 4.499-1.411 5.956-2.738 7.326",
+              },
+            ],
+            ["path", { d: "M4.27 4.27l15.46 15.46" }],
+          ],
+          play: [["polygon", { points: "6 3 20 12 6 21 6 3" }]],
+          pause: [
+            ["path", { d: "M6 4h4v16H6z" }],
+            ["path", { d: "M14 4h4v16h-4z" }],
+          ],
+          speaker: [
+            ["path", { d: "M11 5 6 9H2v6h4l5 4V5Z" }],
+            ["path", { d: "M15.54 8.46a5 5 0 0 1 0 7.07" }],
+            ["path", { d: "M19.07 4.93a10 10 0 0 1 0 14.14" }],
+          ],
+          reset: [
+            [
+              "path",
+              { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" },
+            ],
+            ["path", { d: "M3 3v5h5" }],
+          ],
+        };
 
         var state = {
           agenda: null,
@@ -3310,6 +3464,7 @@
           sidebarCollapsed: false,
           loadSectionCollapsed: false,
           agendaSectionCollapsed: false,
+          subStateExpansion: {},
         };
 
         var subscribers = new Set();
@@ -3434,7 +3589,7 @@
         function formatEditMs(ms) {
           var totalSeconds = Math.max(0, Math.round(ms / 1000));
           return (
-            String(Math.floor(totalSeconds / 60)) +
+            String(Math.floor(totalSeconds / 60)).padStart(2, "0") +
             ":" +
             String(totalSeconds % 60).padStart(2, "0")
           );
@@ -3499,6 +3654,34 @@
           return node;
         }
 
+        function iconSvg(name) {
+          var svg = document.createElementNS(SVG_NS, "svg");
+          svg.setAttribute("viewBox", "0 0 24 24");
+          svg.setAttribute("fill", "none");
+          svg.setAttribute("stroke", "currentColor");
+          svg.setAttribute("stroke-width", "2");
+          svg.setAttribute("stroke-linecap", "round");
+          svg.setAttribute("stroke-linejoin", "round");
+          svg.setAttribute("aria-hidden", "true");
+          svg.setAttribute("focusable", "false");
+          (ICON_SHAPES[name] || []).forEach(function (shape) {
+            var child = document.createElementNS(SVG_NS, shape[0]);
+            Object.keys(shape[1]).forEach(function (attr) {
+              child.setAttribute(attr, shape[1][attr]);
+            });
+            svg.appendChild(child);
+          });
+          return svg;
+        }
+
+        function setIconButton(button, iconName, actionLabel, pressed) {
+          button.replaceChildren(iconSvg(iconName));
+          button.setAttribute("aria-label", actionLabel);
+          button.setAttribute("title", actionLabel);
+          if (pressed == null) button.removeAttribute("aria-pressed");
+          else button.setAttribute("aria-pressed", pressed ? "true" : "false");
+        }
+
         function setAppError(message) {
           state.fileError = message || "";
           renderStatus(state);
@@ -3538,10 +3721,42 @@
           return null;
         }
 
-        function itemText(item) {
-          return stripInlineMarkdown(item.text || item.raw || "")
+        function itemTextFromRaw(text) {
+          return String(text || "")
             .replace(/^\s*(?:[-*+]|\d+[.)])\s+/, "")
             .trim();
+        }
+
+        function subItemMatch(line) {
+          return String(line || "").match(
+            /^\s*(?:[-*+]|\d+[.)]|[a-zA-Z][.)])\s+(.+)$/,
+          );
+        }
+
+        function splitListItemText(item) {
+          var lines = itemTextFromRaw(item.text || item.raw || "")
+            .split(/\n+/)
+            .map(function (line) {
+              return stripInlineMarkdown(line);
+            });
+          var mainLines = [];
+          var subItems = [];
+          lines.forEach(function (line, idx) {
+            var match = idx > 0 ? subItemMatch(line) : null;
+            if (match) {
+              subItems.push(match[1].trim());
+              return;
+            }
+            if (subItems.length && line.trim()) {
+              subItems[subItems.length - 1] += " " + line.trim();
+              return;
+            }
+            if (line.trim()) mainLines.push(line.trim());
+          });
+          return {
+            text: mainLines.join(" ").trim(),
+            subItems: subItems.filter(Boolean),
+          };
         }
 
         function collectSections(tokens) {
@@ -3556,9 +3771,11 @@
             if (!section) return;
             if (token.type === "list" && Array.isArray(token.items)) {
               token.items.forEach(function (item) {
+                var parts = splitListItemText(item);
                 sections[section].push({
-                  text: itemText(item),
+                  text: parts.text,
                   raw: item.raw || item.text || "",
+                  subItems: parts.subItems,
                 });
               });
             }
@@ -3606,7 +3823,84 @@
           return { title: match[1].trim(), names: names };
         }
 
-        function parseAgendaItem(rawText, orderIndex, lineNumber) {
+        function parseSubItemText(rawText) {
+          var text = stripInlineMarkdown(rawText).trim();
+          var separator = text.match(
+            /\s+(?:\u2014|\u2013|--|-)\s*(?=\d+(?:\.\d+)?\s*(?:min|mins|minutes|m)\b)/i,
+          );
+          if (!separator) return { name: text, durationMs: null };
+          var detailPart = text
+            .slice(separator.index + separator[0].length)
+            .trim();
+          var durationMatch = detailPart.match(
+            /(\d+(?:\.\d+)?)\s*(?:min|mins|minutes|m)\b/i,
+          );
+          if (!durationMatch) return { name: text, durationMs: null };
+          return {
+            name: text.slice(0, separator.index).trim(),
+            durationMs: durationToMs(durationMatch[1]),
+          };
+        }
+
+        function buildListedSubStates(
+          subItemTexts,
+          totalDurationMs,
+          agendaIndex,
+        ) {
+          var parsed = (subItemTexts || [])
+            .map(parseSubItemText)
+            .filter(function (sub) {
+              return !!sub.name;
+            });
+          var missingDurationCount = parsed.filter(function (sub) {
+            return sub.durationMs == null;
+          }).length;
+          var explicitTotalMs = parsed.reduce(function (sum, sub) {
+            return sum + (sub.durationMs || 0);
+          }, 0);
+          var sharedDurationMs = 0;
+          var totalMs = totalDurationMs;
+
+          if (!parsed.length) return { subStates: [], durationMs: totalMs };
+          if (missingDurationCount === parsed.length) {
+            sharedDurationMs = Math.max(
+              1000,
+              Math.round(totalDurationMs / parsed.length),
+            );
+          } else if (missingDurationCount > 0) {
+            sharedDurationMs = Math.max(
+              1000,
+              Math.round(
+                Math.max(0, totalDurationMs - explicitTotalMs) /
+                  missingDurationCount,
+              ),
+            );
+          } else {
+            totalMs = explicitTotalMs;
+          }
+
+          var subStates = parsed.map(function (sub, idx) {
+            return {
+              name: sub.name,
+              durationMs:
+                sub.durationMs == null ? sharedDurationMs : sub.durationMs,
+              timerKey: agendaIndex + "." + idx,
+            };
+          });
+          if (missingDurationCount > 0) {
+            totalMs = subStates.reduce(function (sum, sub) {
+              return sum + sub.durationMs;
+            }, 0);
+          }
+          return { subStates: subStates, durationMs: totalMs };
+        }
+
+        function parseAgendaItem(
+          rawText,
+          orderIndex,
+          lineNumber,
+          subItemTexts,
+        ) {
           var errors = [];
           var text = stripInlineMarkdown(rawText);
           var separator = text.match(
@@ -3671,6 +3965,17 @@
               durationMs = perPersonMs * subStates.length;
             }
           }
+          if (perPersonMs == null && subItemTexts && subItemTexts.length) {
+            var listed = buildListedSubStates(
+              subItemTexts,
+              durationMs,
+              agendaIndex,
+            );
+            if (listed.subStates.length) {
+              subStates = listed.subStates;
+              durationMs = listed.durationMs;
+            }
+          }
 
           if (!attribution.title) {
             errors.push(makeError("Agenda item has no title", lineNumber));
@@ -3722,7 +4027,7 @@
               searchLine,
             );
             if (line != null) searchLine = line;
-            var parsed = parseAgendaItem(entry.text, idx, line);
+            var parsed = parseAgendaItem(entry.text, idx, line, entry.subItems);
             errors = errors.concat(parsed.errors);
             if (parsed.item) items.push(parsed.item);
           });
@@ -3836,14 +4141,22 @@
           return item.agendaIndex + letter;
         }
 
+        function isSubStateExpanded(s, item) {
+          if (!hasSubStates(item)) return false;
+          var key = String(item.agendaIndex);
+          if (Object.prototype.hasOwnProperty.call(s.subStateExpansion, key)) {
+            return !!s.subStateExpansion[key];
+          }
+          return s.cursor.slideIndex === item.slideIndex;
+        }
+
         function getSidebarRows(s) {
           if (!s.agenda) return [];
           return s.agenda.items.map(function (item) {
             return {
               item: item,
               active: s.cursor.slideIndex === item.slideIndex,
-              expanded:
-                s.cursor.slideIndex === item.slideIndex && hasSubStates(item),
+              expanded: isSubStateExpanded(s, item),
               complete: isItemComplete(s, item),
             };
           });
@@ -3961,6 +4274,7 @@
             s.restoredNotice = !!action.restored;
             s.pendingLoad = null;
             s.editingTimer = null;
+            s.subStateExpansion = action.subStateExpansion || {};
           }
           if (action.type === "JUMP_TO") {
             s.cursor = clampCursor(s.agenda, {
@@ -4022,6 +4336,20 @@
           }
           if (action.type === "TOGGLE_AGENDA_SECTION") {
             s.agendaSectionCollapsed = !s.agendaSectionCollapsed;
+          }
+          if (action.type === "TOGGLE_SUBSTATES") {
+            var toggleItem =
+              s.agenda &&
+              s.agenda.items.find(function (item) {
+                return item.agendaIndex === action.agendaIndex;
+              });
+            if (hasSubStates(toggleItem)) {
+              var expansionKey = String(toggleItem.agendaIndex);
+              s.subStateExpansion[expansionKey] = !isSubStateExpanded(
+                s,
+                toggleItem,
+              );
+            }
           }
           if (action.type === "START_TIMER_EDIT") {
             var editTimer = getCurrentTimer(s);
@@ -4140,6 +4468,7 @@
             sidebarCollapsed: !!state.sidebarCollapsed,
             loadSectionCollapsed: !!state.loadSectionCollapsed,
             agendaSectionCollapsed: !!state.agendaSectionCollapsed,
+            subStateExpansion: state.subStateExpansion,
           };
         }
 
@@ -4202,6 +4531,10 @@
                 currentHash === saved.agendaHash
                   ? normalizeSavedTimers(agenda, saved.timers)
                   : createTimers(agenda),
+              subStateExpansion:
+                currentHash === saved.agendaHash
+                  ? saved.subStateExpansion || {}
+                  : {},
               restored: true,
             });
             els.markdownInput.value = saved.rawMarkdown;
@@ -4274,8 +4607,9 @@
         function timerStateLabel(timer) {
           if (!timer) return "No timer";
           if (remainingMs(timer) <= 0) return "Overtime";
+          if (timer.paused) return "Paused";
           if (remainingMs(timer) / timer.allocatedMs < 0.25) return "Low time";
-          return timer.paused ? "Paused" : "Running";
+          return "Running";
         }
 
         function playChime() {
@@ -4375,6 +4709,8 @@
             renderSidebarActive(s);
             renderStage(s);
             renderTimerBar(s);
+          } else if (action.type === "TOGGLE_SUBSTATES") {
+            renderSidebar(s);
           } else {
             renderTimerBar(s);
           }
@@ -4437,10 +4773,20 @@
         }
 
         function renderChrome(s) {
-          els.themeButton.textContent = s.theme === "dark" ? "Light" : "Dark";
-          els.soundButton.textContent = s.soundEnabled
-            ? "Chime On"
-            : "Chime Off";
+          var isDarkTheme = s.theme === "dark";
+          var isSoundEnabled = !!s.soundEnabled;
+          setIconButton(
+            els.themeButton,
+            isDarkTheme ? "moon" : "sun",
+            isDarkTheme ? "Switch to light mode" : "Switch to dark mode",
+            isDarkTheme,
+          );
+          setIconButton(
+            els.soundButton,
+            isSoundEnabled ? "bell" : "bell-off",
+            isSoundEnabled ? "Turn chime off" : "Turn chime on",
+            isSoundEnabled,
+          );
           els.appShell.classList.toggle(
             "is-sidebar-collapsed",
             !!s.sidebarCollapsed,
@@ -4504,28 +4850,59 @@
           getSidebarRows(s).forEach(function (row) {
             var item = row.item;
             var button = el("button", "sidebar-item", null);
+            var itemHasSubStates = hasSubStates(item);
+            var metaText = item.attributions.join(", ") || "No attribution";
             button.type = "button";
             button.dataset.slide = String(item.slideIndex);
             button.dataset.sub = "0";
+            button.dataset.agendaIndex = String(item.agendaIndex);
+            button.classList.toggle("has-substates", itemHasSubStates);
+            if (itemHasSubStates) button.dataset.toggleSubstates = "true";
+            button.classList.toggle(
+              "is-expanded",
+              itemHasSubStates && row.expanded,
+            );
             button.classList.toggle(
               "is-active",
-              row.active && !hasSubStates(item),
+              row.active && !itemHasSubStates,
             );
             button.classList.toggle("is-complete", row.complete);
             button.appendChild(
               el("span", "sidebar-index", String(item.agendaIndex)),
             );
             button.appendChild(el("span", "sidebar-title", item.title));
-            button.appendChild(
-              el(
+            if (itemHasSubStates) {
+              var indicator = el(
                 "span",
-                "sidebar-meta",
-                item.attributions.join(", ") || "No attribution",
-              ),
-            );
+                "sidebar-substate-indicator",
+                String(item.subStates.length),
+              );
+              indicator.setAttribute("aria-hidden", "true");
+              indicator.title = row.expanded
+                ? "Hide subitems"
+                : "Show subitems";
+              button.appendChild(indicator);
+              button.setAttribute(
+                "aria-expanded",
+                row.expanded ? "true" : "false",
+              );
+              button.title = row.expanded ? "Hide subitems" : "Show subitems";
+              button.setAttribute(
+                "aria-label",
+                item.agendaIndex +
+                  ". " +
+                  item.title +
+                  ", " +
+                  metaText +
+                  ", " +
+                  item.subStates.length +
+                  (row.expanded ? " subitems shown" : " subitems hidden"),
+              );
+            }
+            button.appendChild(el("span", "sidebar-meta", metaText));
             els.agendaList.appendChild(button);
 
-            if (hasSubStates(item) && row.expanded) {
+            if (itemHasSubStates && row.expanded) {
               item.subStates.forEach(function (sub, idx) {
                 var subButton = el("button", "sidebar-subitem", null);
                 subButton.type = "button";
@@ -4680,6 +5057,7 @@
           if (!timer) return "";
           var remaining = remainingMs(timer);
           if (remaining <= 0) return "is-bad";
+          if (timer.paused) return "is-paused";
           if (remaining / timer.allocatedMs < 0.25) return "is-warn";
           return "";
         }
@@ -4730,16 +5108,46 @@
 
           var controls = el("div", "timer-controls", null);
           [
-            { label: timer.paused ? "Play" : "Pause", action: "TOGGLE_PAUSE" },
-            { label: "-1", action: "ADJUST_TIMER", deltaMs: -60000 },
-            { label: "+1", action: "ADJUST_TIMER", deltaMs: 60000 },
-            { label: "Read time", action: "READ_TIME" },
-            { label: "Reset", action: "RESET_TIMER" },
+            {
+              icon: timer.paused ? "play" : "pause",
+              label: timer.paused ? "Play timer" : "Pause timer",
+              action: "TOGGLE_PAUSE",
+              className: "timer-control-icon",
+            },
+            {
+              label: "- 1:00",
+              action: "ADJUST_TIMER",
+              deltaMs: -60000,
+              className: "timer-adjust-button",
+            },
+            {
+              label: "+ 1:00",
+              action: "ADJUST_TIMER",
+              deltaMs: 60000,
+              className: "timer-adjust-button",
+            },
+            {
+              icon: "speaker",
+              label: "Read time aloud",
+              action: "READ_TIME",
+              className: "timer-control-icon",
+            },
+            {
+              icon: "reset",
+              label: "Reset timer",
+              action: "RESET_TIMER",
+              className: "timer-control-icon",
+            },
           ].forEach(function (spec) {
-            var button = el("button", "", spec.label);
+            var button = el(
+              "button",
+              spec.className || "",
+              spec.icon ? null : spec.label,
+            );
             button.type = "button";
             button.dataset.action = spec.action;
             if (spec.deltaMs) button.dataset.deltaMs = String(spec.deltaMs);
+            if (spec.icon) setIconButton(button, spec.icon, spec.label, null);
             controls.appendChild(button);
           });
           els.timerbar.appendChild(controls);
@@ -4753,6 +5161,10 @@
             return;
           }
           readout.classList.toggle("is-warn", timerStatus(timer) === "is-warn");
+          readout.classList.toggle(
+            "is-paused",
+            timerStatus(timer) === "is-paused",
+          );
           readout.classList.toggle("is-bad", timerStatus(timer) === "is-bad");
           var main = readout.querySelector(".timer-main");
           var sub = readout.querySelector(".timer-sub");
@@ -4933,6 +5345,14 @@
           els.agendaList.addEventListener("click", function (event) {
             var button = event.target.closest("button[data-slide]");
             if (!button) return;
+            if (button.dataset.toggleSubstates === "true") {
+              event.preventDefault();
+              dispatch({
+                type: "TOGGLE_SUBSTATES",
+                agendaIndex: Number(button.dataset.agendaIndex),
+              });
+              return;
+            }
             dispatch({
               type: "JUMP_TO",
               slideIndex: Number(button.dataset.slide),
@@ -5094,6 +5514,25 @@
             expectSubStates: 3,
           },
           {
+            name: "numbered subitems",
+            markdown:
+              "# Sync\n\n**Meeting Admins**\n- Meeting Master: Sarah\n- Notetaker: Teck Lee\n\n**Agenda**\n1. Planning review (Sarah) - 6 min by 2:18 PM\n   1. Scope\n   2. Risk\n   3. Next steps",
+            expectItems: 1,
+            expectSubStates: 3,
+            expectSubNames: ["Scope", "Risk", "Next steps"],
+            expectSubMs: 120000,
+          },
+          {
+            name: "letter subitems with durations",
+            markdown:
+              "# Sync\n\n**Meeting Admins**\n- Meeting Master: Sarah\n- Notetaker: Teck Lee\n\n**Agenda**\n1. Roundtable (Sarah) - 5 min by 2:18 PM\n   a. Sarah - 2 min\n   b. Teck Lee - 3 min",
+            expectItems: 1,
+            expectSubStates: 2,
+            expectSubNames: ["Sarah", "Teck Lee"],
+            expectMs: 300000,
+            expectSubMs: 120000,
+          },
+          {
             name: "bom crlf smart quotes unicode",
             markdown:
               "\uFEFF# Sync\r\n\r\n**Meeting Admins**\r\n- Meeting Master: Sarah\r\n- Notetaker: Teck Lee\r\n\r\n**Agenda**\r\n1. \u201cO'Brien review\u201d (Solomon O'Brien) - 3 min by 2:21 PM",
@@ -5134,6 +5573,23 @@
               check(
                 item && item.subStates.length === fixture.expectSubStates,
                 "sub-state count",
+              );
+            if (fixture.expectSubNames)
+              check(
+                item &&
+                  item.subStates
+                    .map(function (sub) {
+                      return sub.name;
+                    })
+                    .join("|") === fixture.expectSubNames.join("|"),
+                "sub-state names",
+              );
+            if (fixture.expectSubMs)
+              check(
+                item &&
+                  item.subStates[0] &&
+                  item.subStates[0].durationMs === fixture.expectSubMs,
+                "sub-state duration",
               );
             if (fixture.expectErrors)
               check(agenda.errors.length > 0, "structured errors");
