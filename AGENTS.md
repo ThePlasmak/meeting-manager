@@ -1,5 +1,5 @@
 <!--
-  This file is the Claude Code project guide. Its twin AGENTS.md is the Codex
+  This file is the Codex project guide. Its twin CLAUDE.md is the Claude Code
   equivalent and is kept in lockstep with this file.
 
   To regenerate after editing .planning/PROJECT.md or research:
