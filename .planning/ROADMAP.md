@@ -13,9 +13,9 @@
 ## Phases
 
 - [x] **Phase 1: MVP Vertical Slice — Paste, Render, Tick, Click** — Smallest usable product: paste markdown, see a Marp-style slide deck with working sidebar + countdown timer (rAF + `performance.now()` from day one), click sidebar to navigate, overrun shows OVERTIME banner.
-- [ ] **Phase 2: Persistence + Drag-Drop + Keyboard + Nav Truth Table** — Turns the prototype into something you can actually run a meeting with: auto-save survives crashes, drop a `.md` file to load, full keyboard control (Space, ←/→, Shift+→, 1–9, R, +/−) with editing-target guard, `beforeunload` warns mid-timer.
-- [ ] **Phase 3: Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime** — Quality-of-life: empty-state UI guides first-time use, parser errors show inline with line numbers, dark/light toggle with no flash, click time to edit, screen stays awake while timer runs, optional zero-crossing chime.
-- [ ] **Phase 4: Discord-Readiness Visual Audit** — Final pass for screenshare: font weights ≥500, sizes ≥24px, AAA contrast, OVERTIME banner has thick stroke that survives 720p compression, layout intact at 100/125/150% zoom.
+- [x] **Phase 2: Persistence + Drag-Drop + Keyboard + Nav Truth Table** — Turns the prototype into something you can actually run a meeting with: auto-save survives crashes, drop a `.md` file to load, full keyboard control (Space, ←/→, Shift+→, 1–9, R, +/−) with editing-target guard, `beforeunload` warns mid-timer.
+- [x] **Phase 3: Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime** — Quality-of-life: empty-state UI guides first-time use, parser errors show inline with line numbers, dark/light toggle with no flash, click time to edit, screen stays awake while timer runs, optional zero-crossing chime.
+- [x] **Phase 4: Discord-Readiness Visual Audit** — Final pass for screenshare: font weights ≥500, sizes ≥24px, AAA contrast, OVERTIME banner has thick stroke that survives 720p compression, layout intact at 100/125/150% zoom.
 
 ---
 
@@ -93,7 +93,8 @@
   5. Loading a different agenda (different hash) resets cursor + timers but preserves theme; restored cursor/sub-state indices are clamped to the new agenda's range.
   6. Opening the file in Firefox does NOT white-screen — it falls back to in-memory state with a small "Auto-save unavailable" banner (try/catch around every `localStorage` call).
 
-**Plans:** TBD
+**Plans:**
+- [x] 02-01: Persistence drag-drop keyboard navigation
 **UI hint**: yes
 
 ---
@@ -129,7 +130,8 @@
   5. Starting a timer requests the Screen Wake Lock; the screen does not dim/sleep while a timer runs; pausing all timers releases the lock; switching tabs and back re-acquires the lock; if `navigator.wakeLock` is unsupported, nothing breaks.
   6. Enabling the sound toggle and letting the active timer cross zero fires a single short chime; no chime fires for amber transitions, sub-state changes, or reset.
 
-**Plans:** TBD
+**Plans:**
+- [x] 03-01: Polish theme errors edit wake sound
 **UI hint**: yes
 
 ---
@@ -159,7 +161,8 @@
   4. Browser zoom at 100%, 125%, and 150% all render correctly — sidebar doesn't overlap stage, timer bar stays at the bottom, no horizontal scroll appears.
   5. Side-by-side with an actual Overwatch screenshot, the banner is clearly inspired-by, not copy-of: different typeface, shifted colors, but the aggressive impact intent is preserved.
 
-**Plans:** TBD
+**Plans:**
+- [x] 04-01: Discord-readiness visual audit
 **UI hint**: yes
 
 ---
@@ -169,9 +172,9 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. MVP Vertical Slice — Paste, Render, Tick, Click | 4/4 | Complete | 2026-05-16 |
-| 2. Persistence + Drag-Drop + Keyboard + Nav Truth Table | 0/? | Not started | — |
-| 3. Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | 0/? | Not started | — |
-| 4. Discord-Readiness Visual Audit | 0/? | Not started | — |
+| 2. Persistence + Drag-Drop + Keyboard + Nav Truth Table | 1/1 | Complete | 2026-05-16 |
+| 3. Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | 1/1 | Complete | 2026-05-16 |
+| 4. Discord-Readiness Visual Audit | 1/1 | Complete | 2026-05-16 |
 
 ---
 
@@ -212,4 +215,4 @@
 
 ---
 
-*Last updated: 2026-05-16 (Phase 1 complete)*
+*Last updated: 2026-05-16 (v1 complete)*

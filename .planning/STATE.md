@@ -1,6 +1,6 @@
 # STATE — Meeting Manager
 
-**Last updated:** 2026-05-16 (Phase 1 complete)
+**Last updated:** 2026-05-16 (v1 complete)
 **Mode:** MVP
 **Granularity:** coarse (4 phases)
 
@@ -12,22 +12,22 @@
 
 **Core value:** Paste markdown → run a timed meeting on screenshare without fiddling.
 
-**Current focus:** Phase 2 — Persistence + Drag-Drop + Keyboard + Nav Truth Table. Phase 1 now provides the parser/store/renderer/timer foundation in `agenda-presenter.html`.
+**Current focus:** v1 complete. All roadmap phases are implemented in `agenda-presenter.html`; remaining work is optional manual Discord screenshare validation.
 
 ---
 
 ## Current Position
 
-**Phase:** 2 — Persistence + Drag-Drop + Keyboard + Nav Truth Table
-**Plan:** Phase 2 not planned yet
-**Status:** Phase 1 complete; ready to plan Phase 2
-**Progress:** ██░░░░░░░░ 1/4 phases complete (25%)
+**Phase:** Complete
+**Plan:** All v1 phase plans executed
+**Status:** v1 complete; milestone audit passed
+**Progress:** ██████████ 4/4 phases complete (100%)
 
 ```
 Phase 1 ██████████  complete
-Phase 2 ░░░░░░░░░░  not started  ← current
-Phase 3 ░░░░░░░░░░  not started
-Phase 4 ░░░░░░░░░░  not started
+Phase 2 ██████████  complete
+Phase 3 ██████████  complete
+Phase 4 ██████████  complete
 ```
 
 ---
@@ -37,9 +37,9 @@ Phase 4 ░░░░░░░░░░  not started
 | # | Phase | Status | Requirements | Plans |
 |---|-------|--------|--------------|-------|
 | 1 | MVP Vertical Slice — Paste, Render, Tick, Click | Complete | 41 | 4/4 |
-| 2 | Persistence + Drag-Drop + Keyboard + Nav Truth Table | Not started | 17 | 0/? |
-| 3 | Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | Not started | 15 | 0/? |
-| 4 | Discord-Readiness Visual Audit | Not started | 5 | 0/? |
+| 2 | Persistence + Drag-Drop + Keyboard + Nav Truth Table | Complete | 17 | 1/1 |
+| 3 | Polish Layer — Empty State, Errors, Theme, Click-to-Edit, Wake Lock, Chime | Complete | 15 | 1/1 |
+| 4 | Discord-Readiness Visual Audit | Complete | 5 | 1/1 |
 
 **Total v1 requirements:** 78 (100% mapped)
 
@@ -52,9 +52,9 @@ Phase 4 ░░░░░░░░░░  not started
 | Phase | Plans | Plans Repaired | Verifier Issues | Code Review Issues | Notes |
 |-------|-------|----------------|------------------|---------------------|-------|
 | 1 | 4 | 0 | 0 open | Not run | Commit `eef3112`; Playwright + static distribution smoke passed |
-| 2 | — | — | — | — | — |
-| 3 | — | — | — | — | — |
-| 4 | — | — | — | — | — |
+| 2 | 1 | 0 | 0 open | Inline review | Commit `5801cb9`; Playwright smoke passed |
+| 3 | 1 | 0 | 0 open | Inline review | Commit `5801cb9`; Playwright smoke passed |
+| 4 | 1 | 0 | 0 open | Inline review | Commit `5801cb9`; layout/static audit passed |
 
 ---
 
@@ -122,8 +122,8 @@ From `.planning/research/SUMMARY.md` Phase 3 section:
 ### Todos / Reminders
 
 - [x] Write the parser fixture file (`test-agendas.md` or inline test strings) with all 10+ variants BEFORE writing the parser (Phase 1).
-- [ ] Pin the sub-state navigation truth table (Pitfall #10) into code comments BEFORE writing NAV (Phase 2).
-- [ ] Pin the overrun semantics table (Pitfall #6) into code comments BEFORE writing click-to-edit or reset-during-overrun (Phase 3).
+- [x] Pin the sub-state navigation truth table (Pitfall #10) into code comments BEFORE writing NAV (Phase 2).
+- [x] Pin the overrun semantics table (Pitfall #6) into code comments BEFORE writing click-to-edit or reset-during-overrun (Phase 3).
 - [ ] After Phase 4, run the real-Discord-screenshare validation session (screenshot to a second account/device).
 
 ### Blockers
@@ -140,12 +140,12 @@ None.
 
 ## Session Continuity
 
-**Last session:** 2026-05-16 — Executed Phase 1 into `agenda-presenter.html` and verified the MVP vertical slice.
+**Last session:** 2026-05-16 — Completed v1 phases 2-4 into `agenda-presenter.html`, verified the full local browser workflow, and wrote milestone audit.
 
-**Resume hint:** Phase 1 is complete. Run `$gsd-plan-phase 2` to plan persistence, drag-drop, full keyboard navigation, and lifecycle guards.
+**Resume hint:** v1 is complete. Optional next step is a real Discord screenshare compression check.
 
-**Phase 1 completion:** Parser with inline fixtures, Store + reducer skeleton, Renderer (region-scoped: Sidebar / Stage / TimerBar), TimerEngine (single rAF + `performance.now()` derivation), pasting renders slides + working countdown + sidebar click-to-jump + overrun visual, all in `agenda-presenter.html` opened by double-click.
+**v1 completion:** Parser with inline fixtures, Store + reducer skeleton, Renderer (region-scoped: Sidebar / Stage / TimerBar), TimerEngine (single rAF + `performance.now()` derivation), persistence, drag/drop, keyboard navigation, theme, error UI, click-to-edit, wake lock, sound toggle, and Discord-readiness CSS audit, all in `agenda-presenter.html` opened by double-click.
 
 ---
 
-*Last updated: 2026-05-16 (Phase 1 complete)*
+*Last updated: 2026-05-16 (v1 complete)*

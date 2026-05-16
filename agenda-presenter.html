@@ -1139,6 +1139,9 @@
       };
     }
 
+    // Navigation truth table: title -> first item, sub-state -> next sibling,
+    // last sub-state -> next item, Shift+Right -> next item, last item -> complete,
+    // complete -> no-op, Left mirrors back through sub-states/items/title.
     function getNextCursor(s, skipPeople) {
       if (!s.agenda) return s.cursor;
       if (isCompleteSlide(s)) return s.cursor;
@@ -1453,6 +1456,8 @@
       timer.paused = true;
     }
 
+    // Overrun semantics: negative time is allowed, pause freezes it, reset returns
+    // the current timer to allocated duration, and navigation never auto-advances.
     function adjustTimer(timer, deltaMs) {
       if (!timer) return;
       timer.allocatedMs = Math.max(1000, timer.allocatedMs + deltaMs);
