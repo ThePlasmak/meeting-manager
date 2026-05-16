@@ -68,22 +68,23 @@ A single-file local HTML tool that turns a Markdown meeting agenda into a Marp-s
 
 ## Key Decisions
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Single-file vanilla HTML over framework | "Lightweight and simple" — must double-click open, no build | — Pending |
+| Decision                                                                                                      | Rationale                                                                                             | Outcome   |
+| ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------- |
+| Single-file vanilla HTML over framework                                                                       | "Lightweight and simple" — must double-click open, no build                                           | — Pending |
 | "Max per person" splits into per-person sub-states on one slide (not separate slides, not one combined slide) | Sarah's mental model: each person speaks in turn under one agenda item, but each gets their own timer | — Pending |
-| Meeting Admins shown as slide 1 (not header strip, not hidden) | User explicitly chose: "make it slide 1" | — Pending |
-| Light mode default + dark toggle in UI | User wants flexibility but defaults to Marp's clean light aesthetic | — Pending |
-| Auto-save everything (agenda + slide + timer state) | Browser crash mid-meeting is a real risk on screenshare; full restore beats partial | — Pending |
-| Right-arrow advances person-by-person; Shift+→ skips to next agenda item | Power-user-friendly default, escape hatch when a person is absent | — Pending |
-| Overrun = full-slide red tint + Overwatch "OVERTIME" banner | User wants the aggressive Overwatch styling, full visibility | — Pending |
-| Don't auto-advance on timer zero | Overrun should be visible, not hidden — meeting discipline is the user's job, not the tool's | — Pending |
+| Meeting Admins shown as slide 1 (not header strip, not hidden)                                                | User explicitly chose: "make it slide 1"                                                              | — Pending |
+| Light mode default + dark toggle in UI                                                                        | User wants flexibility but defaults to Marp's clean light aesthetic                                   | — Pending |
+| Auto-save everything (agenda + slide + timer state)                                                           | Browser crash mid-meeting is a real risk on screenshare; full restore beats partial                   | — Pending |
+| Right-arrow advances person-by-person; Shift+→ skips to next agenda item                                      | Power-user-friendly default, escape hatch when a person is absent                                     | — Pending |
+| Overrun = full-slide red tint + Overwatch "OVERTIME" banner                                                   | User wants the aggressive Overwatch styling, full visibility                                          | — Pending |
+| Don't auto-advance on timer zero                                                                              | Overrun should be visible, not hidden — meeting discipline is the user's job, not the tool's          | — Pending |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
 **After each phase transition** (via `/gsd-transition`):
+
 1. Requirements invalidated? → Move to Out of Scope with reason
 2. Requirements validated? → Move to Validated with phase reference
 3. New requirements emerged? → Add to Active
@@ -91,6 +92,7 @@ This document evolves at phase transitions and milestone boundaries.
 5. "What This Is" still accurate? → Update if drifted
 
 **After each milestone** (via `/gsd:complete-milestone`):
+
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
