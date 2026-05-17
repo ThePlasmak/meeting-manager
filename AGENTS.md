@@ -31,19 +31,15 @@ Core value: paste markdown -> run a timed meeting on screenshare without fiddlin
 
 - Follow GSD for repo edits. Use `$gsd-quick` for small fixes/docs, `$gsd-plan-phase` for planning, and `$gsd-execute-phase` for planned implementation.
 - Do not paste generated research dumps into this file. Keep this guide concise and point agents at `.planning/` for detail.
-- Current GSD position: Phase 1 is ready to plan. Next phase command is `$gsd-plan-phase 1`; use `$gsd-discuss-phase 1` first if user-specific context is needed.
+- Current GSD position: v1 complete (all 4 phases shipped). See `.planning/STATE.md` for milestone status before starting new work.
 
-## Current Phase Notes
+## Current Status
 
-Phase 1 must deliver the first usable vertical slice: paste Markdown, render title + agenda slides, clickable sidebar, working countdown timer, and overrun visual.
+v1 ships in `meeting-manager.html`: parser, sidebar, ring + flat timer, persistence, keyboard nav, theme, click-to-edit, wake lock, sounds, drag-drop, Discord-readiness audit. Open todo: real Discord screenshare validation pass.
 
-Non-negotiables for Phase 1:
+## Design Reference Sync
 
-- Parser handles the README agenda shape plus dash variants and "max per person".
-- Fixture coverage exists before parser implementation.
-- Sidebar click jumps to the slide/sub-state and resets that timer.
-- Timer turns amber at 25%, red at zero, then counts negative with an overrun banner.
-- The file still opens directly from disk with no runtime network requirement.
+Claude Design handoff bundles land in `design-reference/vN/`. When a new bundle arrives, do not re-port from scratch — `diff -r design-reference/vN-1 design-reference/vN` and apply only the deltas to `meeting-manager.html`. The HTML at repo root is the production port; the bundled JSX is the prototype.
 
 ## Note: Relationship Between MD Files
 
