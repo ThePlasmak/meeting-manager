@@ -2,6 +2,10 @@
 
 From an agenda written in Markdown, create a simple slide deck with timers based on each agenda item's duration.
 
+## Setup
+
+Just clone or download the entire repo.
+
 ## Usage
 
 1. Write an agenda in Markdown like this:
@@ -21,7 +25,7 @@ From an agenda written in Markdown, create a simple slide deck with timers based
     3. Decision review (Sephiroth) - 3 mins
     ```
 
-2. Open meeting-manager.html (the Meeting Manager app) with a browser.
+2. Open `meeting-manager.html` (the Meeting Manager app) with a browser.
 
 3. Paste the Markdown into the app.
 
