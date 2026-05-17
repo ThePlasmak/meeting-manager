@@ -1,6 +1,6 @@
 # Meeting Manager
 
-Create a simple slide deck with a timer and navigation sidebar from an agenda written in Markdown.
+From an agenda written in Markdown, create a simple slide deck with timers based on each agenda item's duration.
 
 ## Usage
 
@@ -8,6 +8,8 @@ Create a simple slide deck with a timer and navigation sidebar from an agenda wr
 
     ```md
     # Meeting Title
+
+    **Start Time:** 1 PM
 
     **Meeting Admins**
     - **Meeting Master:** Sephiroth
