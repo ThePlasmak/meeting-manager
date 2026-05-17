@@ -77,7 +77,7 @@ Two-pane: 320px sidebar (`--paper-2` bg) + main stage (`--paper` bg).
    - **h1** in the chosen title font:
      - Title slide: meeting title, `clamp(48px, 10vh, 112px)`.
      - Agenda slide: item or sub-item name, `clamp(44px, 9.5vh, 108px)`. `text-wrap: balance`.
-     - Complete slide: "Meeting complete.", same as title.
+     - Complete slide: "Meeting complete!", same as title.
    - Below the h1 on agenda slides, present attribution names in `--muted`,
      `clamp(18px,2.6vh,26px)`, joined with " · ".
    - Below that, badges row:

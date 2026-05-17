@@ -619,7 +619,7 @@ function Stage({ slide, meeting, tweaks, current, total }) {
   if (slide.kind === "complete") {
     return (
       <div style={stageWrap()}>
-        <Eyebrow color="var(--good)">Wrapped</Eyebrow>
+        <Eyebrow color="var(--good)">Done!</Eyebrow>
         <h1
           style={{
             ...titleStyle,
@@ -629,7 +629,7 @@ function Stage({ slide, meeting, tweaks, current, total }) {
             color: "var(--ink)",
           }}
         >
-          Meeting complete.
+          Meeting complete!
         </h1>
         <p
           style={{
@@ -640,7 +640,7 @@ function Stage({ slide, meeting, tweaks, current, total }) {
             margin: 0,
           }}
         >
-          Thanks, everyone. Notes go to {meeting.admins.find((a) => /notetaker/i.test(a.role))?.value || "the notetaker"}.
+          Woo! Thanks, everyone!}.
         </p>
       </div>
     );

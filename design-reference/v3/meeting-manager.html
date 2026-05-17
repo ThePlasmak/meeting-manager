@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Meeting Manager</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Serif+Display&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+    <style>
+      :root {
+        /* Light theme — refined neutrals, hint of cool */
+        --paper: #fbfbfd;
+        --paper-2: #f4f5f8;
+        --surface: #ffffff;
+        --surface-hover: rgba(10, 10, 15, 0.04);
+        --surface-active: rgba(10, 10, 15, 0.06);
+        --ink: #0a0a0f;
+        --ink-2: #2a2b34;
+        --muted: #6b6c78;
+        --faint: #9a9ba8;
+        --line: rgba(10, 10, 15, 0.07);
+        --line-strong: rgba(10, 10, 15, 0.13);
+        --line-highlight: rgba(255, 255, 255, 0.6);
+        --accent: #5b5bd6;
+        --accent-soft: rgba(91, 91, 214, 0.10);
+        --accent-glow: rgba(91, 91, 214, 0.18);
+        --good: #1f7a4d;
+        --warn: #a16b00;
+        --bad: #b03a2e;
+        --shadow-sm: 0 1px 2px rgba(10, 10, 15, 0.04), 0 0 0 1px rgba(10, 10, 15, 0.02);
+        --shadow-md: 0 2px 4px rgba(10, 10, 15, 0.04), 0 8px 24px -12px rgba(10, 10, 15, 0.12);
+        --shadow-lg: 0 4px 12px rgba(10, 10, 15, 0.06), 0 20px 48px -20px rgba(10, 10, 15, 0.18);
+        --shadow: var(--shadow-md);
+        --radius-sm: 6px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-xl: 14px;
+        --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --serif: "Instrument Serif", "Times New Roman", serif;
+        --mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+        --num: "Inter", system-ui, sans-serif;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --ease-fast: cubic-bezier(0.16, 1, 0.3, 1);
+        /* Subtle ambient gradient for the main stage */
+        --bg-gradient:
+          radial-gradient(1200px 700px at 70% -10%, rgba(91, 91, 214, 0.06), transparent 60%),
+          radial-gradient(900px 600px at -10% 90%, rgba(91, 91, 214, 0.04), transparent 50%);
+      }
+
+      html[data-theme="dark"] {
+        /* Dark theme — deep, slightly-cool near-black with raised surfaces */
+        --paper: #08080b;
+        --paper-2: #0f0f13;
+        --surface: #131318;
+        --surface-hover: rgba(255, 255, 255, 0.04);
+        --surface-active: rgba(255, 255, 255, 0.07);
+        --ink: #f4f4f7;
+        --ink-2: #d4d4dc;
+        --muted: #8a8b97;
+        --faint: #5a5b67;
+        --line: rgba(255, 255, 255, 0.07);
+        --line-strong: rgba(255, 255, 255, 0.13);
+        --line-highlight: rgba(255, 255, 255, 0.06);
+        --accent: #8b8bff;
+        --accent-soft: rgba(139, 139, 255, 0.14);
+        --accent-glow: rgba(139, 139, 255, 0.28);
+        --good: #5fbe8e;
+        --warn: #d4a046;
+        --bad: #e07a6f;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.02);
+        --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.5), 0 12px 32px -12px rgba(0, 0, 0, 0.7);
+        --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.55), 0 24px 60px -20px rgba(0, 0, 0, 0.8);
+        --shadow: var(--shadow-md);
+        --bg-gradient:
+          radial-gradient(1200px 700px at 70% -10%, rgba(139, 139, 255, 0.08), transparent 60%),
+          radial-gradient(900px 600px at -10% 90%, rgba(139, 139, 255, 0.05), transparent 55%);
+      }
+
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-feature-settings: "ss01", "cv11", "ss03";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        letter-spacing: -0.005em;
+      }
+      button { font-family: inherit; color: inherit; }
+      textarea {
+        font-family: "Inter", system-ui, sans-serif;
+      }
+      ::selection { background: var(--accent-soft); color: var(--ink); }
+
+      #root { height: 100%; }
+
+      /* Custom focus ring — refined and consistent */
+      :focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--accent-glow);
+      }
+
+      /* Smoother scrollbars */
+      ::-webkit-scrollbar { width: 10px; height: 10px; }
+      ::-webkit-scrollbar-thumb {
+        background: var(--line-strong);
+        background-clip: padding-box;
+        border: 3px solid transparent;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+        background-clip: padding-box;
+        border: 3px solid transparent;
+      }
+      ::-webkit-scrollbar-track { background: transparent; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script>
+      window.__TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+        "accent": "#0B6EAB",
+        "titleFont": "inter-tight",
+        "showSecondaryClock": true,
+        "ringTimer": true,
+        "overtimeStrokeColor": "#A83000",
+        "overtimeStrokeWidth": 3,
+        "overtimeGlowSizeMin": 0.7,
+        "overtimeGlowSizeMax": 0.9,
+        "overtimeGlowSpeed": 3.6,
+        "overtimeGlowPalette": [
+          "#F9960B",
+          "#FE680B",
+          "#E64500"
+        ],
+        "overtimeFlameSize": 1.15,
+        "overtimeFlameSpeed": 1.1,
+        "ttsVoice": "Microsoft Zira - English (United States)",
+        "countdownSounds": true,
+        "soundVolume": 0.6,
+        "dark": false
+      }/*EDITMODE-END*/;
+    </script>
+
+    <script type="text/babel" data-presets="react" src="./tweaks-panel.jsx"></script>
+    <script type="text/babel" data-presets="react" src="./parse.jsx"></script>
+    <script type="text/babel" data-presets="react" src="./components.jsx"></script>
+    <script type="text/babel" data-presets="react" src="./app.jsx"></script>
+  </body>
+</html>

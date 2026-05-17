@@ -6,9 +6,27 @@ const { useEffect, useLayoutEffect, useMemo, useRef, useState } = React;
 // Small atoms
 // ────────────────────────────────────────────────────────────
 
+// Smooth height collapse using grid-rows 1fr↔0fr. Handles unknown content
+// height without measuring. Inner div uses min-height: 0 so it can shrink.
+function Collapse({ open, children, duration = 260 }) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateRows: open ? "1fr" : "0fr",
+        opacity: open ? 1 : 0,
+        transform: open ? "translateY(0)" : "translateY(-4px)",
+        transition: `grid-template-rows ${duration}ms var(--ease, cubic-bezier(0.22, 1, 0.36, 1)), opacity ${duration}ms ease, transform ${duration}ms var(--ease, cubic-bezier(0.22, 1, 0.36, 1))`,
+      }}
+    >
+      <div style={{ minHeight: 0, overflow: "hidden" }}>{children}</div>
+    </div>
+  );
+}
+
 function Badge({ children, tone = "ink" }) {
   const palette = {
-    ink: { bg: "transparent", fg: "var(--ink)", bd: "var(--line-strong)" },
+    ink: { bg: "var(--surface-hover)", fg: "var(--ink-2)", bd: "var(--line)" },
     accent: { bg: "var(--accent-soft)", fg: "var(--accent)", bd: "transparent" },
     muted: { bg: "transparent", fg: "var(--muted)", bd: "var(--line)" },
   }[tone];
@@ -18,16 +36,17 @@ function Badge({ children, tone = "ink" }) {
         display: "inline-flex",
         alignItems: "center",
         gap: 6,
-        height: 28,
-        padding: "0 12px",
+        height: 26,
+        padding: "0 10px",
         borderRadius: 999,
         background: palette.bg,
         color: palette.fg,
         border: `1px solid ${palette.bd}`,
-        fontSize: 13,
+        fontSize: 12.5,
         fontWeight: 500,
         letterSpacing: "-0.005em",
         whiteSpace: "nowrap",
+        backdropFilter: "blur(8px)",
       }}
     >
       {children}
@@ -40,13 +59,26 @@ function Eyebrow({ children, color }) {
     <div
       style={{
         fontFamily: "var(--sans)",
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: 600,
-        letterSpacing: "0.14em",
+        letterSpacing: "0.16em",
         textTransform: "uppercase",
         color: color || "var(--accent)",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
       }}
     >
+      <span
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: 5,
+          background: "currentColor",
+          boxShadow: "0 0 8px currentColor",
+          opacity: 0.9,
+        }}
+      />
       {children}
     </div>
   );
@@ -59,22 +91,30 @@ function IconButton({ onClick, title, children, active }) {
       onClick={onClick}
       title={title}
       style={{
-        width: 36,
-        height: 36,
+        width: 30,
+        height: 30,
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        border: "1px solid var(--line)",
-        background: active ? "var(--accent-soft)" : "var(--paper)",
-        color: active ? "var(--accent)" : "var(--ink-2)",
-        borderRadius: 10,
+        border: `1px solid ${active ? "color-mix(in oklch, var(--accent) 30%, transparent)" : "var(--line-strong)"}`,
+        background: active ? "var(--accent-soft)" : "var(--surface)",
+        color: active ? "var(--accent)" : "var(--muted)",
+        borderRadius: 6,
         cursor: "pointer",
-        transition: "background 120ms, color 120ms, border-color 120ms",
+        transition: "background 120ms var(--ease-fast), color 120ms var(--ease-fast), border-color 120ms var(--ease-fast)",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--line-strong)")}
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.borderColor = "var(--line)")
-      }
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = "var(--surface-hover)";
+          e.currentTarget.style.color = "var(--ink)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = "var(--surface)";
+          e.currentTarget.style.color = "var(--muted)";
+        }
+      }}
     >
       {children}
     </button>
@@ -89,23 +129,39 @@ function GhostButton({ onClick, children, primary, small, title, disabled }) {
       disabled={disabled}
       title={title}
       style={{
-        height: small ? 30 : 36,
-        padding: small ? "0 12px" : "0 16px",
-        border: `1px solid ${primary ? "transparent" : "var(--line)"}`,
-        background: primary ? "var(--ink)" : "var(--paper)",
-        color: primary ? "var(--paper)" : "var(--ink)",
-        borderRadius: 10,
+        height: small ? 28 : 32,
+        padding: small ? "0 11px" : "0 14px",
+        border: `1px solid ${primary ? "var(--accent)" : "var(--line-strong)"}`,
+        background: primary ? "var(--accent)" : "var(--surface)",
+        color: primary ? "#fff" : "var(--ink)",
+        borderRadius: 6,
         cursor: disabled ? "not-allowed" : "pointer",
         fontWeight: 500,
-        fontSize: small ? 13 : 14,
-        letterSpacing: "-0.01em",
+        fontSize: small ? 12.5 : 13.5,
+        letterSpacing: "-0.005em",
         opacity: disabled ? 0.5 : 1,
         whiteSpace: "nowrap",
-        transition: "transform 80ms ease, background 120ms ease",
+        boxShadow: "none",
+        transition: "background 120ms var(--ease-fast), border-color 120ms var(--ease-fast), color 120ms var(--ease-fast)",
       }}
-      onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
-      onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+      onMouseEnter={(e) => {
+        if (!primary) {
+          e.currentTarget.style.background = "var(--surface-hover)";
+          e.currentTarget.style.borderColor = "var(--line-strong)";
+        } else {
+          e.currentTarget.style.background = "color-mix(in oklch, var(--accent) 90%, black)";
+          e.currentTarget.style.borderColor = "color-mix(in oklch, var(--accent) 90%, black)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!primary) {
+          e.currentTarget.style.background = "var(--surface)";
+          e.currentTarget.style.borderColor = "var(--line-strong)";
+        } else {
+          e.currentTarget.style.background = "var(--accent)";
+          e.currentTarget.style.borderColor = "var(--accent)";
+        }
+      }}
     >
       {children}
     </button>
@@ -141,7 +197,7 @@ function AgendaInput({ rawMarkdown, onLoad, onSample, sampleText, errors }) {
     <section
       style={{
         borderBottom: "1px solid var(--line)",
-        padding: "18px 20px 18px",
+        padding: "14px 16px 16px",
       }}
     >
       <button
@@ -179,7 +235,7 @@ function AgendaInput({ rawMarkdown, onLoad, onSample, sampleText, errors }) {
         Agenda Source
       </button>
 
-      {open && (
+      <Collapse open={open}>
         <div style={{ marginTop: 12 }}>
           <textarea
             value={text}
@@ -191,20 +247,26 @@ function AgendaInput({ rawMarkdown, onLoad, onSample, sampleText, errors }) {
               minHeight: 180,
               padding: 12,
               border: "1px solid var(--line)",
-              borderRadius: 10,
-              background: "var(--paper)",
+              borderRadius: 8,
+              background: "var(--surface-hover)",
               color: "var(--ink)",
               fontFamily: "var(--sans)",
-              fontSize: 13.5,
+              fontSize: 13,
               fontWeight: 500,
               lineHeight: 1.5,
               letterSpacing: "-0.005em",
               resize: "vertical",
               outline: "none",
-              transition: "border-color 120ms",
+              transition: "border-color 140ms var(--ease-fast), background 140ms var(--ease-fast)",
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--line-strong)")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--line)")}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--line-strong)";
+              e.currentTarget.style.background = "var(--surface-active)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--line)";
+              e.currentTarget.style.background = "var(--surface-hover)";
+            }}
           />
           <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
             <GhostButton primary small onClick={() => onLoad(text)}>
@@ -220,26 +282,28 @@ function AgendaInput({ rawMarkdown, onLoad, onSample, sampleText, errors }) {
                 title={`Fill in clock times for ${missingDeadlineCount} agenda line${missingDeadlineCount === 1 ? "" : "s"}`}
                 aria-label="Fill in clock times"
                 style={{
-                  width: 30,
-                  height: 30,
+                  width: 28,
+                  height: 28,
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   border: "1px solid var(--line)",
-                  background: "var(--paper)",
-                  color: "var(--ink-2)",
-                  borderRadius: 10,
+                  background: "var(--surface-hover)",
+                  color: "var(--muted)",
+                  borderRadius: 7,
                   cursor: "pointer",
                   marginLeft: "auto",
-                  transition: "border-color 120ms, color 120ms",
+                  transition: "border-color 140ms var(--ease-fast), color 140ms var(--ease-fast), background 140ms var(--ease-fast)",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "var(--line-strong)";
                   e.currentTarget.style.color = "var(--ink)";
+                  e.currentTarget.style.background = "var(--surface-active)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "var(--line)";
-                  e.currentTarget.style.color = "var(--ink-2)";
+                  e.currentTarget.style.color = "var(--muted)";
+                  e.currentTarget.style.background = "var(--surface-hover)";
                 }}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -269,12 +333,14 @@ function AgendaInput({ rawMarkdown, onLoad, onSample, sampleText, errors }) {
             </div>
           )}
         </div>
-      )}
+      </Collapse>
     </section>
   );
 }
 
 function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
+  // Meeting end time = last item's clock time (last thing to finish).
+  const meetingEndLabel = items.length ? (items[items.length - 1].deadlineLabel || null) : null;
   const [open, setOpen] = useState(true);
   if (!items.length) {
     return (
@@ -301,7 +367,7 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
   const cur = slides[currentSlide] || null;
 
   return (
-    <section style={{ padding: "0 20px 24px", flex: 1, overflowY: "auto" }}>
+    <section style={{ padding: "0 16px 24px", flex: 1, overflowY: "auto" }}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -343,16 +409,17 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
           </svg>
           Agenda
         </span>
-        <span style={{ fontSize: 11, color: "var(--faint)", fontVariantNumeric: "tabular-nums" }}>
-          {totalLabel}
+        <span style={{ fontSize: 11, color: "var(--faint)", fontVariantNumeric: "tabular-nums", display: "inline-flex", alignItems: "baseline", gap: 6 }}>
+          <span>{totalLabel}</span>
         </span>
       </button>
 
-      {open && (
+      <Collapse open={open}>
         <div>
       <button
         type="button"
         onClick={() => onJump(titleSlide)}
+        className={`mm-nav-btn${currentSlide === titleSlide ? " mm-active" : ""}`}
         style={navItemStyle(currentSlide === titleSlide)}
       >
         <span style={numStyle(currentSlide === titleSlide)}>—</span>
@@ -369,7 +436,6 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
         >
           Title
         </span>
-        <div style={durColStyle()} />
       </button>
 
       {items.map((it) => {
@@ -385,6 +451,7 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
             <button
               type="button"
               onClick={() => onJump(itSlide)}
+              className={`mm-nav-btn${isThisRowActive ? " mm-active" : ""}`}
               style={navItemStyle(isThisRowActive)}
             >
               <span style={numStyle(isThisRowActive)}>{it.agendaIndex}</span>
@@ -396,6 +463,7 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
+                    minWidth: 0,
                   }}
                 >
                   {it.title}
@@ -408,6 +476,7 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
+                      minWidth: 0,
                     }}
                   >
                     {it.names.join(", ")}
@@ -415,9 +484,11 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
                 )}
               </div>
               <div style={durColStyle()}>
-                <span style={{ color: "var(--ink-2)", fontWeight: 500 }}>{it.durationLabel}</span>
+                <span style={{ color: "var(--ink)", fontWeight: 600, fontSize: 12 }}>
+                  {it.durationLabel}
+                </span>
                 {it.deadlineLabel && (
-                  <span style={{ color: "var(--faint)", fontSize: 10, marginTop: 2 }}>
+                  <span style={{ color: "var(--faint)", fontWeight: 400, fontSize: 11, marginTop: 1 }}>
                     {it.deadlineLabel}
                   </span>
                 )}
@@ -436,7 +507,8 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
                   key={si}
                   type="button"
                   onClick={() => onJump(ss)}
-                  style={{ ...navItemStyle(subActive), paddingLeft: 44 }}
+                  className={`mm-nav-btn${subActive ? " mm-active" : ""}`}
+                  style={{ ...navItemStyle(subActive), paddingLeft: 32 }}
                 >
                   <span
                     style={{
@@ -447,25 +519,26 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
                   >
                     {String.fromCharCode(97 + si)}
                   </span>
-                  <span
-                    style={{
-                      fontWeight: 500,
-                      color: "var(--ink-2)",
-                      flex: 1,
-                      minWidth: 0,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {s.name}
-                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
+                    <span
+                      style={{
+                        fontWeight: 500,
+                        color: "var(--ink-2)",
+                        minWidth: 0,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {s.name}
+                    </span>
+                  </div>
                   <div style={durColStyle()}>
-                    <span style={{ color: "var(--ink-2)", fontWeight: 500 }}>
+                    <span style={{ color: "var(--ink)", fontWeight: 600, fontSize: 12 }}>
                       {formatDurLabel(s.durationMs)}
                     </span>
                     {s.deadlineLabel && (
-                      <span style={{ color: "var(--faint)", fontSize: 10, marginTop: 2 }}>
+                      <span style={{ color: "var(--faint)", fontWeight: 400, fontSize: 11, marginTop: 1 }}>
                         {s.deadlineLabel}
                       </span>
                     )}
@@ -480,6 +553,7 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
       <button
         type="button"
         onClick={() => onJump(completeSlide)}
+        className={`mm-nav-btn${currentSlide === completeSlide ? " mm-active" : ""}`}
         style={navItemStyle(currentSlide === completeSlide)}
       >
         <span style={numStyle(currentSlide === completeSlide)}>✓</span>
@@ -496,17 +570,16 @@ function AgendaList({ items, currentSlide, slides, onJump, totalLabel }) {
         >
           Complete
         </span>
-        <div style={durColStyle()} />
       </button>
         </div>
-      )}
+      </Collapse>
     </section>
   );
 }
 
 function durColStyle() {
   return {
-    width: 64,
+    width: 56,
     flexShrink: 0,
     display: "flex",
     flexDirection: "column",
@@ -524,29 +597,32 @@ function navItemStyle(active) {
     width: "100%",
     display: "flex",
     alignItems: "center",
-    gap: 12,
+    gap: 10,
     padding: "10px 12px",
-    margin: "2px -12px",
+    margin: "2px 0",
     border: 0,
     background: active ? "var(--accent-soft)" : "transparent",
-    borderRadius: 10,
+    boxShadow: active ? "0 0 0 1px color-mix(in oklch, var(--accent) 30%, transparent) inset" : "none",
+    borderRadius: 8,
     cursor: "pointer",
     textAlign: "left",
     fontFamily: "var(--sans)",
-    fontSize: 14,
+    fontSize: 13.5,
     color: "var(--ink)",
+    transition: "background 140ms var(--ease-fast), box-shadow 140ms var(--ease-fast)",
   };
 }
 function numStyle(active) {
   return {
-    width: 22,
+    width: 20,
     flexShrink: 0,
     fontFamily: "var(--sans)",
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: 500,
     color: active ? "var(--accent)" : "var(--faint)",
     fontVariantNumeric: "tabular-nums",
     textAlign: "left",
+    letterSpacing: "0.02em",
   };
 }
 
@@ -640,7 +716,7 @@ function Stage({ slide, meeting, tweaks, current, total }) {
             margin: 0,
           }}
         >
-          Woo! Thanks, everyone.
+          Woo! Thanks, everyone!}.
         </p>
       </div>
     );
@@ -868,6 +944,9 @@ function EditableTime({ ms, color, fontSize, fontWeight, letterSpacing, fitTo, o
     color,
     fontVariantNumeric: "tabular-nums",
     lineHeight: 1,
+    // Match the ring/bar's 240ms color fade so the numbers don't snap to grey
+    // ahead of the ring on pause/resume.
+    transition: "color 240ms ease",
   };
 
   if (editing) {
@@ -931,35 +1010,33 @@ function TimerRing({ remainingMs, durationMs, running, onToggle, onReset, onBump
   // No memory across changes — a Reset (remaining → duration) snaps the ring
   // back to empty cleanly. The smoothing pass below handles visible animation
   // on any discrete jump.
-  const { useRef, useState, useEffect } = window.React;
+  const { useRef, useLayoutEffect } = window.React;
   const effDuration = Math.max(durationMs, remainingMs);
 
-  // Detect discrete jumps (bump, set-time, reset) so we can smooth them
-  // through the same transition we use when paused — without re-enabling
-  // the transition for the small per-frame rAF updates.
+  // Track previous remainingMs so we can detect discrete jumps (bump /
+  // set-time / reset). When paused the CSS transition handles them; when
+  // running we drive a one-shot WAAPI animation imperatively below so the
+  // ring sweeps from old → new instead of teleporting. (setState inside a
+  // useEffect lands AFTER the new strokeDasharray has already been
+  // committed, so CSS transitions can't catch the jump while running.)
   const prevMsRef = useRef(remainingMs);
-  const smoothingTimerRef = useRef(null);
-  const [smoothing, setSmoothing] = useState(false);
-  useEffect(() => {
-    const prev = prevMsRef.current;
-    prevMsRef.current = remainingMs;
-    if (Math.abs(remainingMs - prev) > 200) {
-      setSmoothing(true);
-      if (smoothingTimerRef.current) clearTimeout(smoothingTimerRef.current);
-      smoothingTimerRef.current = setTimeout(() => {
-        setSmoothing(false);
-        smoothingTimerRef.current = null;
-      }, 400);
-    }
-  }, [remainingMs]);
-  const showTransition = !running || smoothing;
+  const ringArcRef = useRef(null);
+  // When paused we always want the CSS transition on; when running we
+  // animate jumps via WAAPI instead, so the CSS transition stays off
+  // (per-frame rAF updates would otherwise queue 360ms tweens each paint).
+  const showTransition = !running;
 
   const elapsed = effDuration - remainingMs;
   const pct = effDuration > 0 ? Math.max(0, Math.min(1, elapsed / effDuration)) : 0;
   const over = remainingMs < 0;
   const warn = !over && remainingMs <= durationMs * 0.2 && durationMs > 0;
   const state = over ? "over" : warn ? "warn" : "ok";
-  const color = state === "over" ? "var(--bad)" : state === "warn" ? "var(--warn)" : "var(--good)";
+  // Paused → grey out the ring and readout so it visually reads as "stopped"
+  // (matches the StatePill's muted treatment). Only switch to state colors
+  // once the timer is actively running.
+  const color = !running
+    ? "var(--muted)"
+    : state === "over" ? "var(--bad)" : state === "warn" ? "var(--warn)" : "var(--good)";
 
   const ringSize = 156;
   const stroke = 5;
@@ -967,6 +1044,31 @@ function TimerRing({ remainingMs, durationMs, running, onToggle, onReset, onBump
   const c = 2 * Math.PI * r;
   // Sweep grows clockwise from 12 o'clock
   const dash = c * Math.max(0, Math.min(1, pct));
+
+  // On discrete jumps while running, animate the arc from the old dash to
+  // the new one via WAAPI. Runs in a layout effect so we read the previous
+  // remainingMs before React's next paint, and the animation overlays on
+  // top of React's strokeDasharray attribute for its 360ms duration.
+  useLayoutEffect(() => {
+    const prev = prevMsRef.current;
+    prevMsRef.current = remainingMs;
+    if (!running) return;
+    if (Math.abs(remainingMs - prev) <= 200) return;
+    const node = ringArcRef.current;
+    if (!node || typeof node.animate !== "function") return;
+    const prevElapsed = effDuration - prev;
+    const prevPct = effDuration > 0 ? Math.max(0, Math.min(1, prevElapsed / effDuration)) : 0;
+    const prevDash = c * prevPct;
+    try {
+      node.animate(
+        [
+          { strokeDasharray: `${prevDash} ${c}` },
+          { strokeDasharray: `${dash} ${c}` },
+        ],
+        { duration: 360, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+      );
+    } catch (e) { /* WAAPI on SVG attrs unsupported — silently fall back to teleport */ }
+  }, [remainingMs, running, effDuration, c, dash]);
 
   if (!tweaks.ringTimer) {
     return (
@@ -992,9 +1094,11 @@ function TimerRing({ remainingMs, durationMs, running, onToggle, onReset, onBump
         display: "flex",
         alignItems: "center",
         gap: 24,
-        padding: "16px 28px 18px",
+        padding: "16px 24px 18px",
         borderTop: "1px solid var(--line)",
-        background: "var(--paper)",
+        background: "color-mix(in oklch, var(--paper) 70%, transparent)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
       }}
     >
       <div style={{ position: "relative", width: ringSize, height: ringSize, flexShrink: 0 }}>
@@ -1008,6 +1112,7 @@ function TimerRing({ remainingMs, durationMs, running, onToggle, onReset, onBump
             fill="none"
           />
           <circle
+            ref={ringArcRef}
             cx={ringSize / 2}
             cy={ringSize / 2}
             r={r}
@@ -1095,40 +1200,48 @@ function TimerRing({ remainingMs, durationMs, running, onToggle, onReset, onBump
 }
 
 function FlatTimer({ remainingMs, durationMs, running, onToggle, onReset, onBump, onSetTime, onReadTime, state, color, tweaks }) {
-  const { useRef, useState, useEffect } = window.React;
+  const { useRef, useLayoutEffect } = window.React;
   const effDuration = Math.max(durationMs, remainingMs);
   const elapsed = effDuration - remainingMs;
   const pct = effDuration > 0 ? Math.max(0, Math.min(1, elapsed / effDuration)) : 0;
 
-  // Smooth discrete jumps (bumps, set-time, reset) without re-enabling the
-  // transition for tiny per-frame rAF updates while running.
+  // On discrete jumps while running (bumps, set-time, reset) we animate the
+  // bar imperatively via WAAPI — driving it through setState in useEffect
+  // lands AFTER the new width is already committed, so the CSS transition
+  // never catches the jump.
   const prevMsRef = useRef(remainingMs);
-  const smoothingTimerRef = useRef(null);
-  const [smoothing, setSmoothing] = useState(false);
-  useEffect(() => {
+  const barRef = useRef(null);
+  useLayoutEffect(() => {
     const prev = prevMsRef.current;
     prevMsRef.current = remainingMs;
-    if (Math.abs(remainingMs - prev) > 200) {
-      setSmoothing(true);
-      if (smoothingTimerRef.current) clearTimeout(smoothingTimerRef.current);
-      smoothingTimerRef.current = setTimeout(() => {
-        setSmoothing(false);
-        smoothingTimerRef.current = null;
-      }, 400);
-    }
-  }, [remainingMs]);
-  const showTransition = !running || smoothing;
+    if (!running) return;
+    if (Math.abs(remainingMs - prev) <= 200) return;
+    const node = barRef.current;
+    if (!node || typeof node.animate !== "function") return;
+    const prevElapsed = effDuration - prev;
+    const prevPct = effDuration > 0 ? Math.max(0, Math.min(1, prevElapsed / effDuration)) : 0;
+    try {
+      node.animate(
+        [{ width: `${prevPct * 100}%` }, { width: `${pct * 100}%` }],
+        { duration: 360, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+      );
+    } catch (e) { /* no-op */ }
+  }, [remainingMs, running, effDuration, pct]);
+  const showTransition = !running;
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         borderTop: "1px solid var(--line)",
-        background: "var(--paper)",
+        background: "color-mix(in oklch, var(--paper) 70%, transparent)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
       }}
     >
-      <div style={{ height: 4, background: "var(--line)" }}>
+      <div style={{ height: 3, background: "var(--line)" }}>
         <div
+          ref={barRef}
           style={{
             height: "100%",
             width: `${pct * 100}%`,
@@ -1205,16 +1318,26 @@ function PrimaryAction({ onClick, running }) {
       onClick={onClick}
       title={running ? "Pause" : "Start"}
       style={{
-        width: 36,
-        height: 36,
+        width: 32,
+        height: 32,
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        border: 0,
-        background: "var(--ink)",
-        color: "var(--paper)",
-        borderRadius: 10,
+        border: "1px solid var(--accent)",
+        background: "var(--accent)",
+        color: "#fff",
+        borderRadius: 6,
         cursor: "pointer",
+        boxShadow: "none",
+        transition: "background 120ms var(--ease-fast), border-color 120ms var(--ease-fast)",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "color-mix(in oklch, var(--accent) 90%, black)";
+        e.currentTarget.style.borderColor = "color-mix(in oklch, var(--accent) 90%, black)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "var(--accent)";
+        e.currentTarget.style.borderColor = "var(--accent)";
       }}
     >
       {running ? (
@@ -1331,11 +1454,17 @@ function StatePill({ state, running, tweaks }) {
             "0 0 28px #FF3B00",
             "0 0 44px rgba(255, 59, 0, 0.85)",
           ].join(", "),
-          animation: "mm-overtime-flicker 2.4s ease-in-out infinite",
+          "--mm-glow-min": tweaks?.overtimeGlowSizeMin ?? tweaks?.overtimeGlowSize ?? 1,
+          "--mm-glow-max": tweaks?.overtimeGlowSizeMax ?? tweaks?.overtimeGlowSize ?? 1,
+          "--mm-glow-c1": (tweaks?.overtimeGlowPalette && tweaks.overtimeGlowPalette[0]) || "#FF9F1B",
+          "--mm-glow-c2": (tweaks?.overtimeGlowPalette && tweaks.overtimeGlowPalette[1]) || "#FF6A0F",
+          "--mm-glow-c3": (tweaks?.overtimeGlowPalette && tweaks.overtimeGlowPalette[2]) || "#FF3500",
+          animation: `mm-overtime-flicker ${tweaks?.overtimeGlowSpeed ?? 2.4}s ease-in-out infinite`,
           paddingRight: 2,
         }}
       >
         <svg
+          ref={flameRef}
           width="26"
           height="22"
           viewBox="0 1 16 12"
@@ -1344,7 +1473,8 @@ function StatePill({ state, running, tweaks }) {
             display: "block",
             filter:
               "drop-shadow(0 0 4px #FFE27A) drop-shadow(0 0 10px #FF9020) drop-shadow(0 0 18px #FF3B00) drop-shadow(0 0 28px rgba(255,59,0,0.7))",
-            animation: "mm-overtime-flame 0.8s ease-in-out infinite alternate",
+            "--mm-flame": tweaks?.overtimeFlameSize ?? 1,
+            animation: `mm-overtime-flame ${tweaks?.overtimeFlameSpeed ?? 0.8}s ease-in-out infinite alternate`,
             transformOrigin: "50% 70%",
           }}
         >

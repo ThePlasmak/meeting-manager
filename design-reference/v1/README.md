@@ -33,14 +33,14 @@ already uses.
 
 ## Files in this bundle
 
-| File | Role |
-|---|---|
-| `meeting-manager.html` | Entry point. Loads fonts, declares CSS variables (light + dark theme tokens), declares the `__TWEAK_DEFAULTS` JSON block, and mounts the React app. |
-| `parse.jsx` | Markdown → agenda model. Pulls title, admins block, agenda items, sub-items, durations, and explicit/computed deadlines. Exposes `window.parseAgenda`. |
-| `components.jsx` | UI components: `Badge`, `Sidebar`, `AgendaList`, `Stage`, `TimerRing`, `FlatTimer`, `EditableTime`, `FitText`, `LiveClock`, `PrimaryAction`, etc. Exports them to `window`. |
-| `app.jsx` | App shell: state, persistence, rAF timer tick, countdown sounds (Web Audio), TTS, keyboard handlers, slide nav, sidebar resize, drag-drop import. Mounts `<App />`. |
-| `tweaks-panel.jsx` | The Tweaks panel + `useTweaks` hook used by the host. |
-| `PROMPT-FOR-CODEX.md` | The original design spec — colors, fonts, layout, behavior, Tweaks. Authoritative. |
+| File                   | Role                                                                                                                                                                        |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `meeting-manager.html` | Entry point. Loads fonts, declares CSS variables (light + dark theme tokens), declares the `__TWEAK_DEFAULTS` JSON block, and mounts the React app.                         |
+| `parse.jsx`            | Markdown → agenda model. Pulls title, admins block, agenda items, sub-items, durations, and explicit/computed deadlines. Exposes `window.parseAgenda`.                      |
+| `components.jsx`       | UI components: `Badge`, `Sidebar`, `AgendaList`, `Stage`, `TimerRing`, `FlatTimer`, `EditableTime`, `FitText`, `LiveClock`, `PrimaryAction`, etc. Exports them to `window`. |
+| `app.jsx`              | App shell: state, persistence, rAF timer tick, countdown sounds (Web Audio), TTS, keyboard handlers, slide nav, sidebar resize, drag-drop import. Mounts `<App />`.         |
+| `tweaks-panel.jsx`     | The Tweaks panel + `useTweaks` hook used by the host.                                                                                                                       |
+| `PROMPT-FOR-CODEX.md`  | The original design spec — colors, fonts, layout, behavior, Tweaks. Authoritative.                                                                                          |
 
 ## Design Tokens
 
@@ -130,7 +130,7 @@ keep whichever is consistent in your codebase.
    - **h1** in the chosen title font:
      - Title slide: meeting title, `clamp(48px, 10vh, 112px)`
      - Agenda slide: item / sub-item name, `clamp(44px, 9.5vh, 108px)`, `text-wrap: balance`
-     - Complete slide: "Meeting complete." same as title
+     - Complete slide: "Meeting complete!" same as title
    - Below h1 on agenda slides: present attribution names in `--muted`, `clamp(18px,2.6vh,26px)`, joined with " · ".
    - Badge row: duration pill (`--accent-soft` bg, `--accent` text, leading dot) · "by H:MM PM" pill with clock icon · "max per person" muted pill where applicable.
    - On title slide only: horizontal admin list (role 12px uppercase muted, value 22px medium ink), then "N items" and "11.5 min total" outline pills.
