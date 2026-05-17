@@ -647,7 +647,7 @@ function App() {
                   <span style={{ color: "var(--muted)" }}>Ready when you are.</span>
                 </>
               ) : (
-                <span style={{ color: "var(--muted)" }}>Nice meeting.</span>
+                <span style={{ color: "var(--muted)" }}>Nice meeting!</span>
               )}
             </div>
             <window.GhostButton
