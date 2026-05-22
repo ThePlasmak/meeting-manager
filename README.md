@@ -16,13 +16,12 @@ Just clone or download the entire repo.
     **Start Time:** 1 PM
 
     **Meeting Admins**
-    - **Meeting Master:** Sephiroth
-    - **Notetaker:** Cloud
+    - **Meeting Master:** Sarah
+    - **Notetaker:** Solomon
 
     **Agenda**
-    1. Opening context (Cloud) - 2 min
-    2. Check-in (Cloud, Barret, Tifa) - 1.5 min max per person
-    3. Decision review (Sephiroth) - 3 mins
+    1. Opening context (Sarah) - 2 min
+    2. Check-in (Sarah, Teck Lee, Solomon) - 1.5 min max per person
     ```
 
 2. Open `meeting-manager.html` (the Meeting Manager app) with a browser.
