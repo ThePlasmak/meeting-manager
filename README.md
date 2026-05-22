@@ -11,7 +11,7 @@ Just clone or download the entire repo.
 1. Write an agenda in Markdown like this:
 
     ```md
-    # Meeting Title
+    # Weekly Meeting
 
     **Start Time:** 1 PM
 
