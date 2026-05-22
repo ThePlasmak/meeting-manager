@@ -31,7 +31,7 @@
 
 ### Slide Rendering — `SLIDE`
 
-- [x] **SLIDE-01**: Slide 1 is the title slide — large meeting title, Meeting Master and Notetaker rendered prominently; no timer on slide 1
+- [x] **SLIDE-01**: Slide 1 is the title slide — large meeting title, Meeting Master and Notetaker rendered prominently; includes normal timer controls
 - [x] **SLIDE-02**: Every subsequent slide renders one agenda item — large title, attribution(s) as subtitle, deadline as a small badge
 - [x] **SLIDE-03**: For "max per person" items, each sub-state slide shows the *current person's name + their duration* as the title (e.g., "Teck Lee — 7 min"); the parent agenda item title appears as a smaller eyebrow above
 - [x] **SLIDE-04**: Marp-style aesthetic — lots of whitespace, sans-serif system font stack, one accent color, no shadows/borders by default

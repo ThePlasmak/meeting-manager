@@ -2894,6 +2894,7 @@
 2. Team check-in (Sarah, Teck Lee, Solomon) - 7 min max per person`;
 
         const STORAGE_KEY = "meeting-manager.v2.state";
+        const SYSTEM_SLIDE_TIMER_MS = 60 * 1000;
 
         function loadState() {
           try {
@@ -3045,7 +3046,11 @@
 
           const slide = meeting.slides[currentSlide] || meeting.slides[0];
           const timerInfo = useMemo(() => {
-            if (!slide || slide.kind !== "agenda") return null;
+            if (!slide) return null;
+            if (slide.kind === "title" || slide.kind === "complete") {
+              return { key: slide.kind, durationMs: SYSTEM_SLIDE_TIMER_MS };
+            }
+            if (slide.kind !== "agenda") return null;
             const it = slide.item;
             if (slide.subIndex != null) {
               const s = it.subs[slide.subIndex];
