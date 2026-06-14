@@ -1,6 +1,6 @@
 # STATE — Meeting Manager
 
-**Last updated:** 2026-05-22 (quick task: title/complete slide timers)
+**Last updated:** 2026-06-14 (quick task: auto-start timers on slide navigation)
 **Mode:** MVP
 **Granularity:** coarse (4 phases)
 
@@ -137,6 +137,7 @@ None.
 | 260516-001 | Sync AGENTS.md and CLAUDE.md via hardlink and concise shared guide | 2026-05-16 | 8949fb0 | [260516-001-agents-claude-sync](./quick/260516-001-agents-claude-sync/) |
 | 260516-002 | Add spoken time-left button to timer controls                      | 2026-05-16 | b8ea193 | [260516-read-time-left-button](./quick/260516-read-time-left-button/)   |
 | 260522-001 | Add timers to Title and Complete slides                            | 2026-05-22 | f504111 | [260522-title-complete-slide-timers](./quick/260522-title-complete-slide-timers/) |
+| 260614-001 | Auto-start timers on slide navigation                              | 2026-06-14 | 1ca268b | [260614-001-auto-start-timer-on-slide-change](./quick/260614-001-auto-start-timer-on-slide-change/) |
 
 ---
 
@@ -150,4 +151,4 @@ None.
 
 ---
 
-*Last updated: 2026-05-22 (quick task: title/complete slide timers)*
+*Last updated: 2026-06-14 (quick task: auto-start timers on slide navigation)*
