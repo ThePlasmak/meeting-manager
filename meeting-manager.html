@@ -3183,10 +3183,6 @@
             t.soundVolume,
           ]);
 
-          useEffect(() => {
-            setRunning(false);
-          }, [currentSlide]);
-
           const goto = useCallback(
             (i) => {
               const max = meeting.slides.length - 1;
