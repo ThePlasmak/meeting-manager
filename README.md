@@ -31,3 +31,13 @@ Just clone or download the entire repo.
 4. Optionally, click on the clock icon to add the clock times for each agenda item, so you can share them with others
 
 5. Screenshare the app and run your meeting—with titles and timers automatically loaded from your agenda
+
+## Publish
+
+To update the hosted copy on `sarahmakmq.com`, run:
+
+```powershell
+.\publish.ps1
+```
+
+The script copies the current local app into the website repo at `C:\Users\Sarah\Documents\GitHub\personal-site\static\meeting-manager\`, commits that path, then pushes it to GitHub, so Cloudflare Pages can deploy it.
