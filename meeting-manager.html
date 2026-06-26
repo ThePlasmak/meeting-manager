@@ -922,8 +922,11 @@
             .replace(/\r\n/g, "\n")
             .split("\n");
           let inAgenda = false;
-          let itemIdx = 0;
+          let parsedItemIdx = 0;
+          let agendaOrdinal = 0;
           let count = 0;
+          let deadlineCount = 0;
+          let renumberCount = 0;
           for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             const trimmed = line.trim();
@@ -933,20 +936,34 @@
               continue;
             }
             if (!inAgenda) continue;
-            const m = line.match(/^(\s*(?:\d+\.\s+|[-*]\s+))(.*\S)\s*$/);
+            const m = line.match(/^(\s*)(?:(\d+)\.\s+|([-*])\s+)(.*\S)\s*$/);
             if (!m) continue;
-            if (!SEP_RE.test(line)) continue;
-            const item = parsed.items[itemIdx];
-            itemIdx++;
-            if (!item) continue;
-            if (/\bby\s+\d/i.test(line)) continue;
-            if (!item.deadlineLabel) continue;
+            agendaOrdinal++;
+            let nextLine = line;
+            let changed = false;
+            if (m[2] && Number(m[2]) !== agendaOrdinal) {
+              nextLine = `${m[1]}${agendaOrdinal}. ${m[4]}`;
+              changed = true;
+              renumberCount++;
+            }
+            if (!SEP_RE.test(line)) {
+              lines[i] = nextLine;
+              if (changed) count++;
+              continue;
+            }
+            const item = parsed.items[parsedItemIdx];
+            parsedItemIdx++;
+            if (!item || /\bby\s+\d/i.test(line) || !item.deadlineLabel) {
+              lines[i] = nextLine;
+              if (changed) count++;
+              continue;
+            }
             // Strip a dangling partial "by H:MM AM/PM" suffix the user left behind
             // (e.g. they deleted some-but-not-all of the time) so we don't end up
             // with "…, b, by 1:28 PM" or "…, by, by 1:14 PM". Handles every truncation
             // point of ", by 1:28 PM": ", b", ", by", ", by 1", ", by 1:2",
             // ", by 1:28", ", by 1:28 P", etc. Also handles a bare trailing comma.
-            const cleaned = line
+            const cleaned = nextLine
               .replace(
                 /,?\s*\bby?\b(?:\s+\d{1,2}(?::\d{0,2})?\s*[ap]?\.?m?\.?)?\s*$/i,
                 "",
@@ -954,9 +971,15 @@
               .replace(/,\s*$/, "")
               .replace(/\s+$/, "");
             lines[i] = `${cleaned}, by ${item.deadlineLabel}`;
+            deadlineCount++;
             count++;
           }
-          return { text: lines.join("\n"), count };
+          return {
+            text: lines.join("\n"),
+            count,
+            deadlineCount,
+            renumberCount,
+          };
         }
 
         window.parseAgenda = parseAgenda;
@@ -1163,7 +1186,7 @@
           const [open, setOpen] = useState(!rawMarkdown);
           useEffect(() => setText(rawMarkdown || ""), [rawMarkdown]);
 
-          const missingDeadlineCount = useMemo(() => {
+          const agendaFixCount = useMemo(() => {
             if (!window.addMissingDeadlines) return 0;
             try {
               return window.addMissingDeadlines(text).count;
@@ -1276,12 +1299,12 @@
                     >
                       Sample
                     </GhostButton>
-                    {missingDeadlineCount > 0 && (
+                    {agendaFixCount > 0 && (
                       <button
                         type="button"
                         onClick={fillDeadlines}
-                        title={`Fill in clock times for ${missingDeadlineCount} agenda line${missingDeadlineCount === 1 ? "" : "s"}`}
-                        aria-label="Fill in clock times"
+                        title={`Fix ${agendaFixCount} agenda line${agendaFixCount === 1 ? "" : "s"}`}
+                        aria-label="Fix agenda lines"
                         style={{
                           width: 28,
                           height: 28,
