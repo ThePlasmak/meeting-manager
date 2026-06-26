@@ -1,6 +1,6 @@
 # STATE — Meeting Manager
 
-**Last updated:** 2026-06-14 (quick task: auto-start timers on slide navigation)
+**Last updated:** 2026-06-26 (quick task: renumber agenda helper)
 **Mode:** MVP
 **Granularity:** coarse (4 phases)
 
@@ -138,6 +138,7 @@ None.
 | 260516-002 | Add spoken time-left button to timer controls                      | 2026-05-16 | b8ea193 | [260516-read-time-left-button](./quick/260516-read-time-left-button/)   |
 | 260522-001 | Add timers to Title and Complete slides                            | 2026-05-22 | f504111 | [260522-title-complete-slide-timers](./quick/260522-title-complete-slide-timers/) |
 | 260614-001 | Auto-start timers on slide navigation                              | 2026-06-14 | 1ca268b | [260614-001-auto-start-timer-on-slide-change](./quick/260614-001-auto-start-timer-on-slide-change/) |
+| 260626-001 | Renumber agenda lines in the time-fill helper                      | 2026-06-26 | 970e403 | [260626-001-renumber-agenda-helper](./quick/260626-001-renumber-agenda-helper/) |
 
 ---
 
@@ -151,4 +152,4 @@ None.
 
 ---
 
-*Last updated: 2026-06-14 (quick task: auto-start timers on slide navigation)*
+*Last updated: 2026-06-26 (quick task: renumber agenda helper)*
