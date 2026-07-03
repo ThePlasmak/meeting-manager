@@ -916,8 +916,57 @@
           };
         }
 
+        const DEADLINE_TOKEN_RE =
+          /\bby\s+\d{1,2}(?::\d{2})?\s*(?:[ap]\.?m\.?)?/i;
+
+        function replaceAgendaDeadline(line, deadlineLabel) {
+          if (DEADLINE_TOKEN_RE.test(line)) {
+            return line.replace(DEADLINE_TOKEN_RE, `by ${deadlineLabel}`);
+          }
+          // Strip a dangling partial "by H:MM AM/PM" suffix the user left behind
+          // (e.g. they deleted some-but-not-all of the time) so we don't end up
+          // with "..., b, by 1:28 PM" or "..., by, by 1:14 PM". Handles every
+          // truncation point of ", by 1:28 PM": ", b", ", by", ", by 1",
+          // ", by 1:2", ", by 1:28", ", by 1:28 P", etc. Also handles a bare
+          // trailing comma.
+          const cleaned = line
+            .replace(
+              /,?\s*\bby?\b(?:\s+\d{1,2}(?::\d{0,2})?\s*[ap]?\.?m?\.?)?\s*$/i,
+              "",
+            )
+            .replace(/,\s*$/, "")
+            .replace(/\s+$/, "");
+          return `${cleaned}, by ${deadlineLabel}`;
+        }
+
+        function stripAgendaDeadlinesForSchedule(text) {
+          const lines = String(text || "")
+            .replace(/\r\n/g, "\n")
+            .split("\n");
+          let inAgenda = false;
+          for (let i = 0; i < lines.length; i++) {
+            const trimmed = lines[i].trim();
+            const headerM = trimmed.match(/^\*\*\s*(.+?)\s*\*\*\s*$/);
+            if (headerM) {
+              inAgenda = /^agenda$/i.test(headerM[1]);
+              continue;
+            }
+            if (!inAgenda) continue;
+            if (!/^\s*(?:\d+\.\s+|[-*]\s+)/.test(lines[i])) continue;
+            lines[i] = lines[i]
+              .replace(DEADLINE_TOKEN_RE, "")
+              .replace(/,\s*(?=(?:\/|$))/, " ")
+              .replace(/\s{2,}/g, " ")
+              .replace(/\s+$/, "");
+          }
+          return lines.join("\n");
+        }
+
         function addMissingDeadlines(text) {
-          const parsed = parseAgenda(text);
+          const source = String(text || "").replace(/\r\n/g, "\n");
+          const parsed = parseAgenda(
+            parseStartTime(source) ? stripAgendaDeadlinesForSchedule(source) : source,
+          );
           const lines = String(text || "")
             .replace(/\r\n/g, "\n")
             .split("\n");
@@ -953,26 +1002,22 @@
             }
             const item = parsed.items[parsedItemIdx];
             parsedItemIdx++;
-            if (!item || /\bby\s+\d/i.test(line) || !item.deadlineLabel) {
+            if (!item || !item.deadlineLabel) {
               lines[i] = nextLine;
               if (changed) count++;
               continue;
             }
-            // Strip a dangling partial "by H:MM AM/PM" suffix the user left behind
-            // (e.g. they deleted some-but-not-all of the time) so we don't end up
-            // with "…, b, by 1:28 PM" or "…, by, by 1:14 PM". Handles every truncation
-            // point of ", by 1:28 PM": ", b", ", by", ", by 1", ", by 1:2",
-            // ", by 1:28", ", by 1:28 P", etc. Also handles a bare trailing comma.
-            const cleaned = nextLine
-              .replace(
-                /,?\s*\bby?\b(?:\s+\d{1,2}(?::\d{0,2})?\s*[ap]?\.?m?\.?)?\s*$/i,
-                "",
-              )
-              .replace(/,\s*$/, "")
-              .replace(/\s+$/, "");
-            lines[i] = `${cleaned}, by ${item.deadlineLabel}`;
-            deadlineCount++;
-            count++;
+            const withDeadline = replaceAgendaDeadline(
+              nextLine,
+              item.deadlineLabel,
+            );
+            lines[i] = withDeadline;
+            if (withDeadline !== nextLine) {
+              deadlineCount++;
+              count++;
+            } else if (changed) {
+              count++;
+            }
           }
           return {
             text: lines.join("\n"),
@@ -1186,14 +1231,31 @@
           const [open, setOpen] = useState(!rawMarkdown);
           useEffect(() => setText(rawMarkdown || ""), [rawMarkdown]);
 
-          const agendaFixCount = useMemo(() => {
-            if (!window.addMissingDeadlines) return 0;
+          const agendaFix = useMemo(() => {
+            const empty = {
+              count: 0,
+              deadlineCount: 0,
+              renumberCount: 0,
+            };
+            if (!window.addMissingDeadlines) return empty;
             try {
-              return window.addMissingDeadlines(text).count;
+              const fix = window.addMissingDeadlines(text);
+              return {
+                count: fix.count || 0,
+                deadlineCount: fix.deadlineCount || 0,
+                renumberCount: fix.renumberCount || 0,
+              };
             } catch {
-              return 0;
+              return empty;
             }
           }, [text]);
+          const agendaFixCount = agendaFix.count;
+          const agendaFixTitle =
+            agendaFix.deadlineCount > 0 && agendaFix.renumberCount > 0
+              ? `Fix ${agendaFixCount} agenda line${agendaFixCount === 1 ? "" : "s"}: timings and numbering`
+              : agendaFix.renumberCount > 0
+                ? `Renumber ${agendaFix.renumberCount} agenda line${agendaFix.renumberCount === 1 ? "" : "s"}`
+                : `Fix ${agendaFix.deadlineCount} agenda timing${agendaFix.deadlineCount === 1 ? "" : "s"}`;
 
           function fillDeadlines() {
             if (!window.addMissingDeadlines) return;
@@ -1303,8 +1365,8 @@
                       <button
                         type="button"
                         onClick={fillDeadlines}
-                        title={`Fix ${agendaFixCount} agenda line${agendaFixCount === 1 ? "" : "s"}`}
-                        aria-label="Fix agenda lines"
+                        title={agendaFixTitle}
+                        aria-label={agendaFixTitle}
                         style={{
                           width: 28,
                           height: 28,
@@ -1334,33 +1396,56 @@
                             "var(--surface-hover)";
                         }}
                       >
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 14 14"
-                          fill="none"
-                        >
-                          <circle
-                            cx="7"
-                            cy="7.5"
-                            r="5"
-                            stroke="currentColor"
-                            strokeWidth="1.3"
-                          />
-                          <path
-                            d="M7 5V7.5L8.5 8.75"
-                            stroke="currentColor"
-                            strokeWidth="1.3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M10.5 2.2L12 3.5M3.5 2.2L2 3.5"
-                            stroke="currentColor"
-                            strokeWidth="1.3"
-                            strokeLinecap="round"
-                          />
-                        </svg>
+                        {agendaFix.deadlineCount > 0 ? (
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                          >
+                            <circle
+                              cx="7"
+                              cy="7.5"
+                              r="5"
+                              stroke="currentColor"
+                              strokeWidth="1.3"
+                            />
+                            <path
+                              d="M7 5V7.5L8.5 8.75"
+                              stroke="currentColor"
+                              strokeWidth="1.3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M10.5 2.2L12 3.5M3.5 2.2L2 3.5"
+                              stroke="currentColor"
+                              strokeWidth="1.3"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                          >
+                            <path
+                              d="M4.7 3.5H11.3M4.7 7H11.3M4.7 10.5H11.3"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              strokeLinecap="round"
+                            />
+                            <path
+                              d="M2.25 2.95L2.85 2.55V4.45M2.25 6.55C2.25 6.1 2.58 5.85 3 5.85C3.42 5.85 3.75 6.1 3.75 6.52C3.75 7.05 2.35 7.9 2.35 7.9H3.85M2.3 9.85H3.75L3.05 10.52C3.55 10.55 3.85 10.82 3.85 11.2C3.85 11.65 3.5 11.9 3.05 11.9C2.68 11.9 2.4 11.75 2.2 11.5"
+                              stroke="currentColor"
+                              strokeWidth="0.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
                       </button>
                     )}
                   </div>
