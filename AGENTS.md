@@ -1,4 +1,4 @@
-# CLAUDE.md / AGENTS.md
+# AGENTS.md
 
 ## Project
 
@@ -43,6 +43,6 @@ Claude Design handoff bundles land in `design-reference/vN/`. When a new bundle 
 
 ## Note: Relationship Between MD Files
 
-- `CLAUDE.md` and `AGENTS.md` are hardlinked - they are two names for the same file on disk, so editing one updates both files locally.
-- `CLAUDE.md` is read by Claude Code; `AGENTS.md` is read by Codex and other tools that follow the AGENTS.md convention.
-- Hardlinks are not preserved by git, so collaborators cloning this repo will get two normal files. If they drift, re-create the hardlink with `del AGENTS.md && mklink /H AGENTS.md CLAUDE.md` on Windows or `ln CLAUDE.md AGENTS.md` on macOS/Linux.
+- `AGENTS.md` is the canonical agent instruction file.
+- `CLAUDE.md` contains only `@AGENTS.md` so Claude Code imports these same instructions.
+- Do not re-create a hardlink between these files.
