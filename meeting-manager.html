@@ -753,6 +753,7 @@
           }
           return {
             agendaIndex: idx + 1,
+            sourceText: raw.trim(),
             title: title || "Untitled",
             names,
             durationMs,
@@ -785,19 +786,96 @@
           return out;
         }
 
+        const MONTHS = {
+          jan: 0,
+          january: 0,
+          feb: 1,
+          february: 1,
+          mar: 2,
+          march: 2,
+          apr: 3,
+          april: 3,
+          may: 4,
+          jun: 5,
+          june: 5,
+          jul: 6,
+          july: 6,
+          aug: 7,
+          august: 7,
+          sep: 8,
+          sept: 8,
+          september: 8,
+          oct: 9,
+          october: 9,
+          nov: 10,
+          november: 10,
+          dec: 11,
+          december: 11,
+        };
+
+        function parseStartDatePrefix(prefix) {
+          const cleaned = String(prefix || "").trim().replace(/,\s*$/, "");
+          if (!cleaned) return null;
+          let m = cleaned.match(
+            /^(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]+)(?:\s+(\d{4}))?$/i,
+          );
+          if (!m) {
+            m = cleaned.match(
+              /^([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(\d{4}))?$/i,
+            );
+            if (!m) return null;
+            m = [m[0], m[2], m[1], m[3]];
+          }
+          const monthIndex = MONTHS[m[2].toLowerCase()];
+          if (monthIndex == null) return null;
+          const day = parseInt(m[1], 10);
+          const year = m[3] ? parseInt(m[3], 10) : new Date().getFullYear();
+          if (day < 1 || day > 31) return null;
+          return { year, monthIndex, day };
+        }
+
+        function dateForStartTime(startTime) {
+          const d = new Date();
+          if (startTime.date) {
+            d.setFullYear(
+              startTime.date.year,
+              startTime.date.monthIndex,
+              startTime.date.day,
+            );
+          }
+          d.setHours(startTime.h, startTime.m, 0, 0);
+          return d;
+        }
+
+        function deadlineDateForStart(deadline, startTime, after) {
+          const d = startTime ? dateForStartTime(startTime) : new Date();
+          d.setHours(deadline.h, deadline.m, 0, 0);
+          const floor = after || (startTime?.date ? dateForStartTime(startTime) : null);
+          if (floor) {
+            while (d.getTime() < floor.getTime()) {
+              d.setDate(d.getDate() + 1);
+            }
+          }
+          return d;
+        }
+
         function parseStartTime(text) {
           const m = String(text || "").match(
             /\*\*\s*Start\s*Time\s*:?\s*\*\*\s*:?\s*([^\n]+)/i,
           );
           if (!m) return null;
-          const tm = m[1].trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i);
+          const tm = m[1]
+            .trim()
+            .match(/^(?:(.*?)\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i);
           if (!tm) return null;
-          let h = parseInt(tm[1], 10);
-          const mins = tm[2] ? parseInt(tm[2], 10) : 0;
-          const ap = (tm[3] || "").toLowerCase();
+          const date = parseStartDatePrefix(tm[1]);
+          if (tm[1] && !date) return null;
+          let h = parseInt(tm[2], 10);
+          const mins = tm[3] ? parseInt(tm[3], 10) : 0;
+          const ap = (tm[4] || "").toLowerCase();
           if (ap === "pm" && h < 12) h += 12;
           if (ap === "am" && h === 12) h = 0;
-          return { h, m: mins };
+          return { h, m: mins, date };
         }
 
         function parseAgenda(markdown) {
@@ -822,15 +900,14 @@
           if (!agendaBlock) errors.push("Agenda section not found");
           if (!startTime) {
             errors.push(
-              'Missing **Start Time** — add a line like "**Start Time:** 1 PM" right after the title so clock times can be computed.',
+              'Missing **Start Time** — add a line like "**Start Time:** 1 PM" or "**Start Time:** 23 July 1:25 AM" right after the title so clock times can be computed.',
             );
           }
 
           const hasAnyDeadline = items.some((it) => it.deadline);
           let running = null;
           if (startTime) {
-            running = new Date();
-            running.setHours(startTime.h, startTime.m, 0, 0);
+            running = dateForStartTime(startTime);
           } else if (!hasAnyDeadline && items.length) {
             const now = new Date();
             const m = now.getMinutes();
@@ -839,8 +916,7 @@
           }
           items.forEach((it) => {
             if (it.deadline) {
-              const d = new Date();
-              d.setHours(it.deadline.h, it.deadline.m, 0, 0);
+              const d = deadlineDateForStart(it.deadline, startTime, running);
               running = d;
             } else if (running) {
               running = new Date(running.getTime() + it.durationMs);
@@ -870,8 +946,7 @@
             if (it.deadline) continue;
             const next = items[i + 1];
             if (!next || !next.deadline) continue;
-            const nd = new Date();
-            nd.setHours(next.deadline.h, next.deadline.m, 0, 0);
+            const nd = deadlineDateForStart(next.deadline, startTime);
             const end = new Date(nd.getTime() - next.durationMs);
             it.deadline = { h: end.getHours(), m: end.getMinutes() };
             it.deadlineLabel = fmtClock(end.getHours(), end.getMinutes());
@@ -1229,6 +1304,8 @@
         }) {
           const [text, setText] = useState(rawMarkdown || "");
           const [open, setOpen] = useState(!rawMarkdown);
+          const [copiedDiscordTimings, setCopiedDiscordTimings] =
+            useState(false);
           useEffect(() => setText(rawMarkdown || ""), [rawMarkdown]);
 
           const agendaFix = useMemo(() => {
@@ -1263,6 +1340,167 @@
             if (!count) return;
             setText(next);
             onLoad(next);
+          }
+
+          function sourceActionButtonStyle(pushRight) {
+            return {
+              width: 28,
+              height: 28,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid var(--line)",
+              background: "var(--surface-hover)",
+              color: "var(--muted)",
+              borderRadius: 7,
+              cursor: "pointer",
+              marginLeft: pushRight ? "auto" : 0,
+              transition:
+                "border-color 140ms var(--ease-fast), color 140ms var(--ease-fast), background 140ms var(--ease-fast)",
+            };
+          }
+
+          function handleSourceActionEnter(e) {
+            e.currentTarget.style.borderColor = "var(--line-strong)";
+            e.currentTarget.style.color = "var(--ink)";
+            e.currentTarget.style.background = "var(--surface-active)";
+          }
+
+          function handleSourceActionLeave(e) {
+            e.currentTarget.style.borderColor = "var(--line)";
+            e.currentTarget.style.color = "var(--muted)";
+            e.currentTarget.style.background = "var(--surface-hover)";
+          }
+
+          function toDiscordTimestamp(date, style = "t") {
+            return `<t:${Math.floor(date.getTime() / 1000)}:${style}>`;
+          }
+
+          function dateFromMeetingStart(startTime) {
+            const d = new Date();
+            if (startTime?.date) {
+              d.setFullYear(
+                startTime.date.year,
+                startTime.date.monthIndex,
+                startTime.date.day,
+              );
+            }
+            d.setHours(startTime.h, startTime.m, 0, 0);
+            return d;
+          }
+
+          function datedDeadline(deadline, startTime, after) {
+            const d = startTime ? dateFromMeetingStart(startTime) : new Date();
+            d.setHours(deadline.h, deadline.m, 0, 0);
+            const floor =
+              after || (startTime?.date ? dateFromMeetingStart(startTime) : null);
+            if (floor) {
+              while (d.getTime() < floor.getTime()) {
+                d.setDate(d.getDate() + 1);
+              }
+            }
+            return d;
+          }
+
+          function discordStartTimeLine(startTime) {
+            if (!startTime) return "";
+            const sourceLine = text.match(
+              /^.*\*\*\s*Start\s*Time\s*:?\s*\*\*.*$/im,
+            )?.[0];
+            const suffix =
+              sourceLine?.match(/\b(?:am|pm)\b(.*)$/i)?.[1] || "";
+            const start = dateFromMeetingStart(startTime);
+            const convertedSuffix = suffix.replace(
+              /\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/gi,
+              (_, hour, minute, meridiem) => {
+                let h = parseInt(hour, 10);
+                const m = minute ? parseInt(minute, 10) : 0;
+                const ap = meridiem.toLowerCase();
+                if (ap === "pm" && h < 12) h += 12;
+                if (ap === "am" && h === 12) h = 0;
+                const eventTime = datedDeadline(
+                  { h, m },
+                  startTime,
+                  start,
+                );
+                return toDiscordTimestamp(eventTime);
+              },
+            );
+            const startStyle = startTime.date ? "f" : "t";
+            return `**Start Time:** ${toDiscordTimestamp(start, startStyle)}${convertedSuffix}`;
+          }
+
+          function buildDiscordTimings() {
+            if (!window.parseAgenda) return "";
+            const meeting = window.parseAgenda(text);
+            const lines = [];
+            const meetingHeader = text.match(/^\s*#\s+.+$/m)?.[0].trim();
+            if (meetingHeader) lines.push(meetingHeader, "");
+            const startLine = discordStartTimeLine(meeting.startTime);
+            if (startLine) lines.push(startLine, "");
+            if (meeting.items.length) lines.push("**Agenda**");
+            let running = null;
+            if (meeting.startTime) {
+              running = dateFromMeetingStart(meeting.startTime);
+            }
+            meeting.items.forEach((it, idx) => {
+              let end = it.deadline
+                ? datedDeadline(it.deadline, meeting.startTime, running)
+                : running
+                  ? new Date(running.getTime() + it.durationMs)
+                  : null;
+              if (!end) return;
+              const start = new Date(end.getTime() - it.durationMs);
+              const timestamp = toDiscordTimestamp(end);
+              const sourceText = it.sourceText ||
+                `${it.title} - ${it.durationLabel}`;
+              const timedText = /\bby\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?/i.test(
+                sourceText,
+              )
+                ? sourceText.replace(
+                    /\bby\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?/i,
+                    `by ${timestamp}`,
+                  )
+                : `${sourceText}, by ${timestamp}`;
+              lines.push(`${idx + 1}. ${timedText}`);
+              if (it.subs.length) {
+                let subRun = start;
+                it.subs.forEach((sub) => {
+                  subRun = new Date(subRun.getTime() + sub.durationMs);
+                  const subEnd =
+                    subRun.getTime() > end.getTime() ? end : subRun;
+                  lines.push(
+                    `   - ${sub.name} - ${toDiscordTimestamp(subEnd)}`,
+                  );
+                });
+              }
+              running = end;
+            });
+            return lines.join("\n");
+          }
+
+          async function copyDiscordTimings() {
+            const timings = buildDiscordTimings();
+            if (!timings) return;
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(timings);
+              } else {
+                throw new Error("Clipboard API unavailable");
+              }
+            } catch {
+              const el = document.createElement("textarea");
+              el.value = timings;
+              el.setAttribute("readonly", "");
+              el.style.position = "fixed";
+              el.style.opacity = "0";
+              document.body.appendChild(el);
+              el.select();
+              document.execCommand("copy");
+              document.body.removeChild(el);
+            }
+            setCopiedDiscordTimings(true);
+            window.setTimeout(() => setCopiedDiscordTimings(false), 1600);
           }
 
           return (
@@ -1361,40 +1599,61 @@
                     >
                       Sample
                     </GhostButton>
+                    <button
+                      type="button"
+                      onClick={copyDiscordTimings}
+                      title={
+                        copiedDiscordTimings
+                          ? "Copied Discord timestamps"
+                          : "Copy timings as Discord timestamps"
+                      }
+                      aria-label={
+                        copiedDiscordTimings
+                          ? "Copied Discord timestamps"
+                          : "Copy timings as Discord timestamps"
+                      }
+                      style={sourceActionButtonStyle(true)}
+                      onMouseEnter={handleSourceActionEnter}
+                      onMouseLeave={handleSourceActionLeave}
+                    >
+                      {copiedDiscordTimings ? (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 14 14"
+                          fill="none"
+                        >
+                          <path
+                            d="M2.7 7.1L5.7 10.1L11.3 3.9"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 127.14 96.36"
+                          fill="none"
+                        >
+                          <path
+                            d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.05 12.69-11.43 12.69Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      )}
+                    </button>
                     {agendaFixCount > 0 && (
                       <button
                         type="button"
                         onClick={fillDeadlines}
                         title={agendaFixTitle}
                         aria-label={agendaFixTitle}
-                        style={{
-                          width: 28,
-                          height: 28,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          border: "1px solid var(--line)",
-                          background: "var(--surface-hover)",
-                          color: "var(--muted)",
-                          borderRadius: 7,
-                          cursor: "pointer",
-                          marginLeft: "auto",
-                          transition:
-                            "border-color 140ms var(--ease-fast), color 140ms var(--ease-fast), background 140ms var(--ease-fast)",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor =
-                            "var(--line-strong)";
-                          e.currentTarget.style.color = "var(--ink)";
-                          e.currentTarget.style.background =
-                            "var(--surface-active)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = "var(--line)";
-                          e.currentTarget.style.color = "var(--muted)";
-                          e.currentTarget.style.background =
-                            "var(--surface-hover)";
-                        }}
+                        style={sourceActionButtonStyle(false)}
+                        onMouseEnter={handleSourceActionEnter}
+                        onMouseLeave={handleSourceActionLeave}
                       >
                         {agendaFix.deadlineCount > 0 ? (
                           <svg
@@ -3054,20 +3313,39 @@
             </svg>
           );
         }
-        function GearIcon() {
+        function SoundOnIcon() {
           return (
             <svg
               width="14"
               height="14"
-              viewBox="0 0 24 24"
+              viewBox="0 0 14 14"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.4"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              <path d="M2 5.5H4.2L7.5 2.7V11.3L4.2 8.5H2Z" />
+              <path d="M10 4.5C10.8 5.2 11.2 6.1 11.2 7C11.2 7.9 10.8 8.8 10 9.5" />
+              <path d="M11.7 3C12.9 4.1 13.5 5.5 13.5 7C13.5 8.5 12.9 9.9 11.7 11" />
+            </svg>
+          );
+        }
+        function SoundOffIcon() {
+          return (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M2 5.5H4.2L7.5 2.7V11.3L4.2 8.5H2Z" />
+              <path d="M10.2 5.2L13 8" />
+              <path d="M13 5.2L10.2 8" />
             </svg>
           );
         }
@@ -3291,6 +3569,13 @@
             t.soundVolume,
           ]);
 
+          useEffect(() => {
+            if (t.countdownSounds) return;
+            try {
+              window.speechSynthesis?.cancel();
+            } catch {}
+          }, [t.countdownSounds]);
+
           const goto = useCallback(
             (i) => {
               const max = meeting.slides.length - 1;
@@ -3455,6 +3740,10 @@
 
           function speakSentence(sentence) {
             try {
+              if (!t.countdownSounds) {
+                window.speechSynthesis?.cancel();
+                return;
+              }
               window.speechSynthesis.cancel();
               const u = new SpeechSynthesisUtterance(sentence);
               u.rate = 1.05;
@@ -3467,6 +3756,10 @@
 
           function previewVoice(name) {
             try {
+              if (!t.countdownSounds) {
+                window.speechSynthesis?.cancel();
+                return;
+              }
               window.speechSynthesis.cancel();
               const u = new SpeechSynthesisUtterance("Two minutes remaining.");
               u.rate = 1.05;
@@ -3780,14 +4073,16 @@
                     </window.IconButton>
                     <window.IconButton
                       onClick={() =>
-                        window.postMessage(
-                          { type: "__activate_edit_mode" },
-                          "*",
-                        )
+                        setTweak("countdownSounds", !t.countdownSounds)
                       }
-                      title="Tweaks — , key"
+                      title={
+                        t.countdownSounds
+                          ? "Mute countdown sounds"
+                          : "Unmute countdown sounds"
+                      }
+                      active={!t.countdownSounds}
                     >
-                      <GearIcon />
+                      {t.countdownSounds ? <SoundOnIcon /> : <SoundOffIcon />}
                     </window.IconButton>
                   </div>
                 </div>
