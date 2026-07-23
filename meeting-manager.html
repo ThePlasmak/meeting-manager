@@ -702,6 +702,45 @@
           return `${hh}:${String(m).padStart(2, "0")}${secs} ${ap}`;
         }
 
+        const MONTH_NAMES = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+
+        function formatDiscordTimestamp(seconds, style = "f") {
+          const date = new Date(Number(seconds) * 1000);
+          if (!Number.isFinite(date.getTime())) return null;
+          const dateLabel = `${date.getDate()} ${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
+          const timeLabel = fmtClock(
+            date.getHours(),
+            date.getMinutes(),
+            style === "T" ? date.getSeconds() : 0,
+          );
+          if (style === "t" || style === "T") return timeLabel;
+          if (style === "d" || style === "D") return dateLabel;
+          // Discord's f, F, R, and default styles all contain enough
+          // information to become an absolute, agenda-compatible local time.
+          return `${dateLabel} ${timeLabel}`;
+        }
+
+        function convertDiscordTimestamps(markdown) {
+          return String(markdown || "").replace(
+            /<t:(-?\d+)(?::([tTdDfFR]))?>/g,
+            (token, seconds, style) =>
+              formatDiscordTimestamp(seconds, style || "f") || token,
+          );
+        }
+
         const STRIP_PERPERSON = new RegExp(
           `(?:max\\s+)?${TOKEN}\\s*(?:max\\s*)?per\\s+person`,
           "gi",
@@ -879,7 +918,7 @@
         }
 
         function parseAgenda(markdown) {
-          const text = String(markdown || "").replace(/\r\n/g, "\n");
+          const text = convertDiscordTimestamps(markdown).replace(/\r\n/g, "\n");
           const titleM = text.match(/^\s*#\s+(.+?)\s*$/m);
           const meetingTitle = titleM ? stripMd(titleM[1]) : "Meeting";
 
@@ -1105,6 +1144,7 @@
         window.parseAgenda = parseAgenda;
         window.formatDurLabel = formatDurLabel;
         window.fmtClock = fmtClock;
+        window.convertDiscordTimestamps = convertDiscordTimestamps;
         window.addMissingDeadlines = addMissingDeadlines;
       })();
     </script>
@@ -1342,6 +1382,23 @@
             onLoad(next);
           }
 
+          function pasteHumanReadableTimes(e) {
+            if (!window.convertDiscordTimestamps) return;
+            const pasted = e.clipboardData?.getData("text");
+            if (!pasted || !/<t:-?\d+(?::[tTdDfFR])?>/.test(pasted)) return;
+            e.preventDefault();
+            const textarea = e.currentTarget;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const converted = window.convertDiscordTimestamps(pasted);
+            const next = text.slice(0, start) + converted + text.slice(end);
+            setText(next);
+            requestAnimationFrame(() => {
+              const caret = start + converted.length;
+              textarea.setSelectionRange(caret, caret);
+            });
+          }
+
           function sourceActionButtonStyle(pushRight) {
             return {
               width: 28,
@@ -1556,6 +1613,7 @@
                   <textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
+                    onPaste={pasteHumanReadableTimes}
                     placeholder={sampleText || ""}
                     spellCheck={false}
                     style={{
