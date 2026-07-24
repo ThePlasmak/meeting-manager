@@ -3514,6 +3514,13 @@
               : timerInfo.durationMs
             : 0;
 
+          const timerTitle = timerInfo ? fmtTimer(remainingMs) : null;
+          useEffect(() => {
+            document.title = timerTitle
+              ? `${timerTitle} — Meeting Manager`
+              : "Meeting Manager";
+          }, [timerTitle]);
+
           const tickRef = useRef(null);
           useEffect(() => {
             if (!running || !timerInfo) return;
